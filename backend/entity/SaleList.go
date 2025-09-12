@@ -6,7 +6,8 @@ import (
 
 type SaleList struct {
 	gorm.Model
-	SalePrice float64 `json:"sale_price"`
+	SalePrice   float64 `json:"sale_price"`
+	Description string  `json:"description"` // เพิ่ม field description
 
 	CarID  uint   `json:"carID"`
 	Car    *Car   `gorm:"foreignKey:CarID" json:"car"`

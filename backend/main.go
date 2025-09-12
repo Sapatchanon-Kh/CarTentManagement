@@ -57,6 +57,7 @@ func main() {
 	salesContractController := controllers.NewSalesContractController(configs.DB)
 	leaveController := controllers.NewLeaveController(configs.DB) // ✅ เพิ่ม LeaveController
 	rentListController := controllers.NewRentListController(configs.DB)
+	saleController := controllers.NewSaleController(configs.DB)
 	// --- Routes ---
 
 	// Public Routes
@@ -185,7 +186,13 @@ func main() {
 		rentListRoutes.GET("/:carId", rentListController.GetRentListsByCar)
 		rentListRoutes.PUT("", rentListController.CreateOrUpdateRentList)
 		rentListRoutes.DELETE("/date/:dateId", rentListController.DeleteRentDate)
-
+		rentListRoutes.POST("/book/:carId", rentListController.BookCar) // เพิ่ม BookCar
+	}
+	saleControllerRoutes := r.Group("/sale")
+	{
+		saleControllerRoutes.GET("/cars", saleController.GetCarsWithSale)
+		saleControllerRoutes.GET("/:id", saleController.GetSaleByID)
+		saleControllerRoutes.POST("/", saleController.CreateSale)
 	}
 
 	// Start server

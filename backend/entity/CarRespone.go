@@ -10,6 +10,7 @@ type CarResponse struct {
 	SaleList        []SaleEntry  `json:"sale_list"`
 	RentList        []RentPeriod `json:"rent_list"`
 	Pictures        []CarPicture `json:"pictures"`
+	Status          string       `json "status"`
 }
 
 type SaleEntry struct {
@@ -21,4 +22,5 @@ type RentPeriod struct {
 	RentPrice     float64 `json:"rent_price"`
 	RentStartDate string  `json:"rent_start_date"`
 	RentEndDate   string  `json:"rent_end_date"`
+	Status        string  `json:"period_status"` // เพิ่ม status
 }

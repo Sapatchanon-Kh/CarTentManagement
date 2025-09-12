@@ -3,6 +3,8 @@ import type { CarInfo, CarType, FilterValues, SortOption } from "../../../interf
 import { fetchCars } from "../../../services/carService";
 import CarCard from "../../../components/CarCard";
 import Filter from "../../../components/Filter";
+import { Button } from "antd";
+import { Link } from "react-router-dom";
 
 const SellListPage: React.FC = () => {
   const [cars, setCars] = useState<CarInfo[]>([]);
@@ -42,14 +44,24 @@ const SellListPage: React.FC = () => {
   const handleClear = () => setFilteredCars(cars);
 
   return (
-    <div style={{ display: "flex", marginTop: 60 }}>
-      <Filter cars={cars} onApply={handleApply} onClear={handleClear} />
-      <div style={{ marginLeft: 300, padding: 20, display: "flex", flexWrap: "wrap", gap: 20 }}>
-        {filteredCars
-          .filter(car => car.sale_list?.length) // ✅ โชว์เฉพาะรถที่ขาย
-          .map(car => (
-            <CarCard key={car.ID} car={car} type="sale" />
-          ))}
+     <div>
+      <div style={{ marginTop: 80, marginLeft: 280, backgroundColor: 'rgba(238, 241, 36, 1)', display: 'flex', justifyContent: "space-between", alignItems: "center" }}>
+        <h2 style={{ marginLeft: 20, padding: 5, color: "black" }}>รถที่กำลังปล่อยเช่าทั้งหมด</h2>
+        <Link to="/add-sell">
+          <div style={{ marginRight: 30 }}>
+            <Button type='primary'>เพิ่มการขายรถ</Button>
+          </div>
+        </Link>
+      </div>
+      <div style={{ display: "flex", marginTop: 20 }}>
+        <Filter cars={cars} onApply={handleApply} onClear={handleClear} />
+        <div style={{ marginLeft: 400, padding: 20, display: "flex", flexWrap: "wrap", gap: 20 }}>
+          {filteredCars
+            .filter(car => car.rent_list?.length) // ✅ โชว์เฉพาะรถที่ขาย
+            .map(car => (
+              <CarCard key={car.ID} car={car} type="sale" />
+            ))}
+        </div>
       </div>
     </div>
   );

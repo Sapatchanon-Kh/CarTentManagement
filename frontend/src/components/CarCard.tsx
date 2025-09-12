@@ -23,7 +23,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, type }) => {
     switch (type) {
       case "sale":
         return [
-          <Button key="edit" type="link" onClick={() => navigate(`/edit-sell/${car.ID}`)}>แก้ไข</Button>,
+          <Button key="edit" type="link" onClick={() => navigate(`/edit-sell/${sale.ID}`)}>แก้ไข</Button>,
           <Button key="cancelSale" type="link" danger onClick={() => navigate(`/sell`)}>ยกเลิกการขาย</Button>,
         ];
       case "rent":
