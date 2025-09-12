@@ -130,8 +130,8 @@ const RentCarDetailPage: React.FC = () => {
             <Divider style={{ borderColor: "rgba(255, 215, 0, 0.3)" }} />
             <div style={{ color: "#fff", lineHeight: "1.8em" }}>
               <Title level={4} style={{ color: "gold", marginTop: "-10px" }}>ติดต่อพนักงาน</Title>
-              <p>ชื่อ: Lung Tuu</p>
-              <p>เบอร์โทร: 09888866</p>
+              <p>ชื่อ: {car.employee?.fristname} {car.employee?.lastname}</p>
+              <p>เบอร์โทร: {car.employee?.phone}</p>
             </div>
 
             <Divider style={{ borderColor: "rgba(255, 215, 0, 0.3)" }} />

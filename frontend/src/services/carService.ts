@@ -52,5 +52,13 @@ const mapCar = (data: any): CarInfo => ({
     rent_start_date: r.rent_start_date,
     rent_end_date: r.rent_end_date,
   })) || [],
-  //555555
+  
+  employee: data.employee
+    ? {
+        ID: data.employee.ID,
+        fristname: data.employee.firstName,
+        lastname:data.employee.lastName,
+        phone: data.employee.phone,
+      }
+    : undefined,
 });

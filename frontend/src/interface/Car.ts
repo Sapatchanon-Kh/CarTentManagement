@@ -65,6 +65,7 @@ export interface CarInfo {
 
   sale_list?: SaleInfo[];
   rent_list?: RentInfo[];
+  employee?:  Employee;
 }
 
 // ---- Filter ----
@@ -95,4 +96,10 @@ export type SortField = 'condition' | 'price' | 'mileage' | 'year';
 export interface SortConfig {
   fields: SortField[];            // ลำดับ priority ของการ sort
   orders?: ('asc' | 'desc')[];   // order ของแต่ละ field, default เป็น asc
+}
+export interface Employee {
+  ID: number;
+  fristname: string;
+  lastname: string;
+  phone: string;
 }
