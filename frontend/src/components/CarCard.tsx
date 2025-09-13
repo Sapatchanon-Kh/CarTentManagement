@@ -23,8 +23,8 @@ const CarCard: React.FC<CarCardProps> = ({ car, type }) => {
     switch (type) {
       case "sale":
         return [
-          <Button key="edit" type="link" onClick={() => navigate(`/edit-sell/${sale.ID}`)}>แก้ไข</Button>,
-          <Button key="cancelSale" type="link" danger onClick={() => navigate(`/sell`)}>ยกเลิกการขาย</Button>,
+          <Button key="edit" type="link" onClick={() => navigate(`/add-sell/${car.ID}`)}>แก้ไข</Button>,
+          <Button key="cancelSale" type="link" danger onClick={() => navigate(``)}>ยกเลิกการขาย</Button>,
         ];
       case "rent":
         return [
@@ -60,7 +60,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, type }) => {
       case "rent":
         return car.rent_list?.length ? (
           <>
-            <Text>ราคาเช่า: {car.rent_list[0].rent_price.toLocaleString()} บาท/วัน</Text>
+            <Text strong>ราคาเช่า: {car.rent_list[0].rent_price.toLocaleString()} บาท/วัน</Text>
             <br />
             <Text>เริ่มเช่า: {car.rent_list[0].rent_start_date}</Text>
           </>
@@ -98,7 +98,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, type }) => {
           images.length ? (
             <img
               alt={car.carName}
-              src={images[0]}
+              src={`http://localhost:8080/images/cars/${images[0]}`}
               onClick={() => setIsOpen(true)}
               style={{ cursor: "pointer", objectFit: "cover", height: 180 }}
             />

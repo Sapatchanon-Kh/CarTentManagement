@@ -22,9 +22,9 @@ func InsertMockSaleList(db *gorm.DB) {
 		return
 	}
 
-	// ดึงพนักงานคนแรก
-	var emp entity.Employee
-	if err := db.First(&emp).Error; err != nil {
+	// ดึงพนักงานทั้งหมด
+	var employees []entity.Employee
+	if err := db.Find(&employees).Error; err != nil || len(employees) == 0 {
 		fmt.Println("ไม่พบพนักงาน -> ยัง insert SaleList ไม่ได้")
 		return
 	}
@@ -39,12 +39,12 @@ func InsertMockSaleList(db *gorm.DB) {
 	rand.Seed(time.Now().UnixNano())
 
 	// จำกัดสูงสุด 20 คัน
-	limit := 20
+	limit := 40
 	if len(cars) < limit {
 		limit = len(cars)
 	}
 
-	for i := 0; i < limit; i++ {
+	for i := 35; i < limit; i++ {
 		car := cars[i]
 
 		// สุ่มราคาขายจากต้นทุน
@@ -52,22 +52,23 @@ func InsertMockSaleList(db *gorm.DB) {
 
 		// สุ่มสถานะ
 		status := "Available"
-		if rand.Intn(2) == 0 {
-			status = "Sold"
-		}
 
-		// สุ่ม Manager
+		// สุ่ม Manager และ Employee
 		manager := managers[rand.Intn(len(managers))]
+		emp := employees[rand.Intn(len(employees))]
 
 		sale := entity.SaleList{
-			SalePrice:  salePrice,
-			CarID:      car.ID,
-			Status:     status,
-			ManagerID:  manager.ID,
-			EmployeeID: emp.EmployeeID,
+			SalePrice:   salePrice,
+			CarID:       car.ID,
+			Status:      status,
+			ManagerID:   &manager.ID,     // pointer
+			EmployeeID:  &emp.EmployeeID, // pointer
+			Description: "รถคันนี้ เร็ว แรง ทะลุ นรก",
 		}
 
-		db.Create(&sale)
+		if err := db.Create(&sale).Error; err != nil {
+			fmt.Println("Insert SaleList ล้มเหลว:", err)
+		}
 	}
 
 	fmt.Printf("Inserted mock SaleList successfully! (%d records)\n", limit)

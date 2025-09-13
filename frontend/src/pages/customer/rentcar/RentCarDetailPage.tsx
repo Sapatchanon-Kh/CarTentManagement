@@ -18,8 +18,8 @@ import dayjs from "dayjs";
 import { useAuth } from "../../../hooks/useAuth";
 import CusRentDateRange from "../../../components/CusRentDateRange";
 
-import type{ CarInfo } from "../../../interface/Car";
-import { fetchCarById } from "../../../services/carService";
+import type { CarInfo } from "../../../interface/Car";
+import { getCarByID } from "../../../services/carService";
 
 const { Title } = Typography;
 
@@ -40,7 +40,7 @@ const RentCarDetailPage: React.FC = () => {
     const fetchCar = async () => {
       try {
         if (!id) return;
-        const data = await fetchCarById(Number(id));
+        const data = await getCarByID(Number(id));
         setCar(data);
       } catch (error) {
         console.error(error);
@@ -87,24 +87,25 @@ const RentCarDetailPage: React.FC = () => {
     navigate("/payment");
   };
 
+  const baseUrl = "http://localhost:8080/images/cars/";
   const mainCar = car.pictures?.[0]?.path || "";
-  const thumbnails = car.pictures?.slice(1) || [];
+  const thumbnails = car.pictures?.slice(1, 5) || [];
 
   const rentPricePerDay = car.rent_list?.[0]?.rent_price || car.purchasePrice;
 
   return (
-    <div className={`page-container ${rentModalVisible ? "blurred" : ""}`} 
-         style={{ backgroundColor: "#000", minHeight: "100vh", padding: "20px", transition: "filter 0.3s ease" }}>
+    <div className={`page-container ${rentModalVisible ? "blurred" : ""}`}
+      style={{ backgroundColor: "#000", minHeight: "100vh", padding: "20px", transition: "filter 0.3s ease" }}>
       <Row gutter={16}>
         <Col xs={24} md={16}>
           <Card bordered={false} style={{ backgroundColor: "#1a1a1a", borderRadius: 12, border: "2px solid gold" }}
-                onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 215, 0, 0.4)"}
-                onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
-            <Image src={mainCar} alt="car-main" style={{ borderRadius: "12px", marginBottom: "10px" }} />
+            onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 215, 0, 0.4)"}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
+            <Image src={mainCar ? `${baseUrl}${mainCar}` : ""} alt="car-main" style={{ borderRadius: "12px", marginBottom: "10px" }} />
             <Row gutter={8}>
               {thumbnails.map((thumb, i) => (
                 <Col span={6} key={i}>
-                  <Image src={thumb.path} alt={`car-${i}`} style={{ borderRadius: "8px" }} />
+                  <Image src={`${baseUrl}${thumb.path}`} alt={`car-${i}`} style={{ borderRadius: "8px" }} />
                 </Col>
               ))}
             </Row>
@@ -113,8 +114,8 @@ const RentCarDetailPage: React.FC = () => {
 
         <Col xs={24} md={8}>
           <Card bordered={false} style={{ backgroundColor: "#1a1a1a", color: "white", borderRadius: 12, border: "2px solid gold" }}
-                onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 215, 0, 0.4)"}
-                onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
+            onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 215, 0, 0.4)"}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
             <Title level={3} style={{ color: "gold" }}>{car.brand?.brandName} {car.model?.modelName} ปี {car.yearManufacture}</Title>
             <Title level={2} style={{ color: "white", marginTop: "-10px" }}>฿ {rentPricePerDay.toLocaleString()}/วัน</Title>
 
@@ -130,40 +131,40 @@ const RentCarDetailPage: React.FC = () => {
             <Divider style={{ borderColor: "rgba(255, 215, 0, 0.3)" }} />
             <div style={{ color: "#fff", lineHeight: "1.8em" }}>
               <Title level={4} style={{ color: "gold", marginTop: "-10px" }}>ติดต่อพนักงาน</Title>
-              <p>ชื่อ: {car.employee?.fristname} {car.employee?.lastname}</p>
+              <p>ชื่อ: {car.employee?.name} </p>
               <p>เบอร์โทร: {car.employee?.phone}</p>
             </div>
 
             <Divider style={{ borderColor: "rgba(255, 215, 0, 0.3)" }} />
             <Form form={form} layout="vertical" onFinish={handleFormSubmit}>
               <Form.Item name="rentRange" label={<span style={{ color: "white", fontWeight: "bold" }}>เลือกช่วงเช่า</span>}
-                         rules={[{ required: true, message: "โปรดเลือกช่วงเวลาที่ต้องการเช่า" }]}>
+                rules={[{ required: true, message: "โปรดเลือกช่วงเวลาที่ต้องการเช่า" }]}>
                 <CusRentDateRange />
               </Form.Item>
               <Button icon={<PushpinOutlined />} block htmlType="submit"
-                      style={{ backgroundColor: "gold", color: "black", fontWeight: "bold", border: "2px solid gold", borderRadius: "10px" }}
-                      onMouseEnter={e => { e.currentTarget.style.backgroundColor = "black"; e.currentTarget.style.color = "gold"; }}
-                      onMouseLeave={e => { e.currentTarget.style.backgroundColor = "gold"; e.currentTarget.style.color = "black"; }}>
+                style={{ backgroundColor: "gold", color: "black", fontWeight: "bold", border: "2px solid gold", borderRadius: "10px" }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = "black"; e.currentTarget.style.color = "gold"; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = "gold"; e.currentTarget.style.color = "black"; }}>
                 สั่งเช่า
               </Button>
             </Form>
 
             <Modal title={<span style={{ color: '#f1d430ff' }}>ยืนยันคำสั่งเช่า</span>}
-                   open={rentModalVisible}
-                   onCancel={() => setRentModalVisible(false)}
-                   width={600}
-                   centered
-                   maskClosable={false}
-                   footer={[
-                     <Button key="back" onClick={() => setRentModalVisible(false)}
-                             style={{ backgroundColor: "gold", color: "black", fontWeight: "bold", border: "2px solid gold", borderRadius: "10px" }}>
-                       ยกเลิก
-                     </Button>,
-                     <Button key="submit" onClick={handleConfirmRent}
-                             style={{ backgroundColor: "gold", color: "black", fontWeight: "bold", border: "2px solid gold", borderRadius: "10px" }}>
-                       ยืนยัน
-                     </Button>,
-                   ]}>
+              open={rentModalVisible}
+              onCancel={() => setRentModalVisible(false)}
+              width={600}
+              centered
+              maskClosable={false}
+              footer={[
+                <Button key="back" onClick={() => setRentModalVisible(false)}
+                  style={{ backgroundColor: "gold", color: "black", fontWeight: "bold", border: "2px solid gold", borderRadius: "10px" }}>
+                  ยกเลิก
+                </Button>,
+                <Button key="submit" onClick={handleConfirmRent}
+                  style={{ backgroundColor: "gold", color: "black", fontWeight: "bold", border: "2px solid gold", borderRadius: "10px" }}>
+                  ยืนยัน
+                </Button>,
+              ]}>
               <div style={{ color: 'black' }}>
                 <p>ชื่อ-นามสกุล : </p>
                 <p>รถยนต์ : {car.brand?.brandName} {car.model?.modelName} ปี {car.yearManufacture}</p>

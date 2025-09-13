@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { CarInfo, CarType, FilterValues, SortOption } from "../../../interface/Car";
-import { fetchCars } from "../../../services/carService";
+import { getAllCars } from "../../../services/carService";
 import CarCard from "../../../components/CarCard";
 import Filter from "../../../components/Filter";
 import { Link } from "react-router-dom";
@@ -11,8 +11,8 @@ const RentListPage: React.FC = () => {
 
   useEffect(() => {
     const loadCars = async () => {
-      const data = await fetchCars();
-      setCars(data);
+      const data = await getAllCars();
+      setCars(data); 
       setFilteredCars(data);
     };
     loadCars();
@@ -53,7 +53,7 @@ const RentListPage: React.FC = () => {
         </Link>
       </div>
       <div style={{ display: "flex", marginTop: 20 }}>
-        <Filter cars={cars} onApply={handleApply} onClear={handleClear} />
+        <Filter cars={cars.filter(c => c.rent_list?.length)} onApply={handleApply} onClear={handleClear} />
         <div style={{ marginLeft: 400, padding: 20, display: "flex", flexWrap: "wrap", gap: 20 }}>
           {filteredCars
             .filter(car => car.rent_list?.length) // ✅ โชว์เฉพาะรถที่ขาย

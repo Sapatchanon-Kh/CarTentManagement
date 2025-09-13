@@ -1,6 +1,6 @@
 // src/services/saleService.ts
 import axios from "axios";
-import type { CarInfo, SaleInfo, Employee } from "../interface/Car";
+import type { CarInfo, SaleInfo } from "../interface/Car";
 
 const API_URL = "http://localhost:8080/sale";
 
@@ -14,29 +14,28 @@ export const getAllCarsWithSale = async (): Promise<CarInfo[]> => {
 export const createSale = async (sale: {
   car_id: number;
   sale_price: number;
-  manager_id: number;
+  employee_id: number;  // 👈 เปลี่ยนเป็น employee_id ให้ตรง backend
   description: string;
 }): Promise<SaleInfo> => {
   const res = await axios.post(`${API_URL}/`, sale);
   return res.data;
 };
 
-// --- Service ใหม่ ---
 // ดึง SaleList ตาม ID พร้อมข้อมูล Car
-export const getSaleById = async (saleId: number): Promise<any> => {
+export const getSaleById = async (saleId: number): Promise<SaleInfo> => {
   const res = await axios.get(`${API_URL}/${saleId}`);
   return res.data;
 };
 
 // อัปเดต Sale
 export const updateSale = async (
-  saleId: number,
+  id: number,
   data: {
     sale_price: number;
-    manager_id: number;
+    employee_id: number;   // 👈 เปลี่ยนเป็น employee_id ให้ตรง backend
     description: string;
   }
-): Promise<any> => {
-  const res = await axios.put(`${API_URL}/${saleId}`, data);
+): Promise<SaleInfo> => {
+  const res = await axios.put(`${API_URL}/${id}`, data);
   return res.data;
 };

@@ -8,7 +8,13 @@ export interface CarPicture {
   car_id: number;
 }
 export interface SaleInfo {
+  ID: number;
+  car_id: number;
   sale_price: number;
+  employee_id: number;
+  description: string;
+  status: string;
+  car?: CarInfo;   // 👈 เพิ่มตรงนี้
 }
 
 export interface RentInfo {
@@ -41,7 +47,7 @@ export interface Province {
 }
 
 // ---- Car Info ----
-export type CarType = 'sale' | 'rent' | 'noUse'| 'rentView'|'saleView';
+export type CarType = 'sale' | 'rent' | 'noUse'| 'rentView'|'saleView' ;
 
 export interface CarInfo {
   ID: number;
@@ -98,8 +104,6 @@ export interface SortConfig {
   orders?: ('asc' | 'desc')[];   // order ของแต่ละ field, default เป็น asc
 }
 export interface Employee {
-  ID: number;
-  fristname: string;
-  lastname: string;
+  name: string;
   phone: string;
 }

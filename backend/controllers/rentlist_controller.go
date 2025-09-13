@@ -52,13 +52,15 @@ func (rc *RentListController) GetRentListsByCar(c *gin.Context) {
 		ID:              car.ID,
 		CarName:         car.CarName,
 		YearManufacture: car.YearManufacture,
+		PurchasePrice:   car.PurchasePrice,
+		PurchaseDate:    car.PurchaseDate,
 		Color:           car.Color,
 		Mileage:         car.Mileage,
 		Condition:       car.Condition,
 		SaleList:        nil,
 		RentList:        rentPeriods,
 		Pictures:        car.Pictures,
-		Status:          rentList.Status,
+		
 	}
 
 	c.JSON(http.StatusOK, response)

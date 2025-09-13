@@ -34,7 +34,7 @@ func main() {
 	// 3. Create router
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5174"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -189,11 +189,11 @@ func main() {
 		rentListRoutes.POST("/book/:carId", rentListController.BookCar) // เพิ่ม BookCar
 	}
 	saleControllerRoutes := r.Group("/sale")
-	{
-		saleControllerRoutes.GET("/cars", saleController.GetCarsWithSale)
-		saleControllerRoutes.GET("/:id", saleController.GetSaleByID)
-		saleControllerRoutes.POST("/", saleController.CreateSale)
-	}
+{
+    saleControllerRoutes.GET("/cars", saleController.GetCarsWithSale)
+    saleControllerRoutes.GET("/:id", saleController.GetSaleByID)
+    saleControllerRoutes.POST("/:car_id", saleController.CreateSale) // ✅ ใช้ param
+}
 
 	// Start server
 	if err := r.Run(":8080"); err != nil {

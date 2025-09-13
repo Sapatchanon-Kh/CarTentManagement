@@ -3,8 +3,8 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Row, Col, Card, Typography, Image, Button, Divider, Space, Modal, message } from "antd";
 import { ShoppingCartOutlined, PushpinOutlined } from "@ant-design/icons";
 
-import { fetchCarById } from "../../../services/carService"; // ✅ ใช้ service ของเรา
-import type{ CarInfo } from "../../../interface/Car";
+import { getCarByID } from "../../../services/carService"; // ✅ ใช้ service ของเรา
+import type { CarInfo } from "../../../interface/Car";
 import { useAuth } from "../../../hooks/useAuth";
 
 const { Title, Paragraph } = Typography;
@@ -32,8 +32,9 @@ const BuyCarDetailPage: React.FC = () => {
     const fetchCar = async () => {
       try {
         if (id) {
-          const data = await fetchCarById(id);
+          const data = await getCarByID(id);
           setCar(data);
+          console.log(car);
         }
       } catch (error) {
         console.error("Fetch car error:", error);
@@ -77,9 +78,14 @@ const BuyCarDetailPage: React.FC = () => {
   if (loading) return <div>Loading...</div>;
   if (!car) return <div>ไม่พบรถที่ต้องการ</div>;
 
-  // ใช้รูปจาก car.pictures แทน mainCar, thumb1-4
-  const mainCarImage = car.pictures?.[0]?.path || "";
-  const thumbImages = car.pictures?.slice(1, 5).map(p => p.path) || [];
+
+  const baseUrl = "http://localhost:8080/images/cars";
+
+  const mainCarImage = car.pictures?.[0]?.path
+    ? `${baseUrl}/${car.pictures[0].path}`
+    : "";
+
+  const thumbImages = car.pictures?.slice(1, 5).map(p => `${baseUrl}/${p.path}`) || [];
 
   return (
     <div className={`page-container ${isAnyModalOpen ? "blurred" : ""}`} style={{ backgroundColor: "#000", minHeight: "100vh", padding: "20px", transition: "filter 0.3s ease" }}>
@@ -132,7 +138,7 @@ const BuyCarDetailPage: React.FC = () => {
 
             <div style={{ color: "#fff", lineHeight: "1.8em" }}>
               <Title level={4} style={{ color: "gold", marginTop: "-10px" }}>ติดต่อพนักงาน</Title>
-              <p>ชื่อ : {car.employee?.fristname} {car.employee?.lastname}</p>
+              <p>ชื่อ : {car.employee?.name}</p>
               <p>เบอร์โทร : {car.employee?.phone}</p>
             </div>
 
@@ -205,9 +211,7 @@ const BuyCarDetailPage: React.FC = () => {
         <Title level={4} style={{ color: "gold" }}>รายละเอียด</Title>
         <Paragraph style={{ color: "#ccc" }}>
           {car.carName} ปี {car.yearManufacture}<br />
-          - เลขไมล์: {car.mileage?.toLocaleString()} กม.<br />
-          - สี: {car.color}<br />
-          - สภาพ: {car.condition}
+          {car.sale_list?.length ? car.sale_list[0].description : "ไม่มีรายละเอียด"}
         </Paragraph>
       </Card>
     </div>
