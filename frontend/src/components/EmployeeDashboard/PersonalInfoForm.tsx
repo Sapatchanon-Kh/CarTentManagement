@@ -62,15 +62,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
   /** ทำให้ value ที่ส่งเข้า input ถูกต้องตาม type */
   const getFieldValue = (field: keyof Employee): string => {
     if (field === "birthday") {
-      // รองรับทั้ง string ISO, "YYYY-MM-DD" และ Date
       return toDateInputValue(data.birthday as any);
     }
     const v = (data as any)[field];
     return v ?? "";
   };
-
-  /** normalize ค่า sex จาก DB ("Male"/"Female") -> option ("male"/"female") */
-  const sexValue = (data.sex ? String(data.sex).toLowerCase() : "male") as "male" | "female" | "other";
 
   return (
     <section className="card personal-info">
@@ -114,9 +110,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
             );
           })}
 
+          {/* ✅ เพศ (เพิ่ม "ไม่ระบุ") */}
           <div className="form-group">
             <label htmlFor="sex">เพศ</label>
-            <select id="sex" value={sexValue} onChange={onChange} disabled={!isEditing}>
+            <select id="sex" value={data.sex || ""} onChange={onChange} disabled={!isEditing}>
+              <option value="">-- ไม่ระบุ --</option>
               <option value="male">ชาย</option>
               <option value="female">หญิง</option>
               <option value="other">อื่น ๆ</option>

@@ -3,7 +3,9 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Row, Col, Card, Typography, Image, Button, Divider, Space, Modal, message } from "antd";
 import { ShoppingCartOutlined, PushpinOutlined } from "@ant-design/icons";
 
-import { getCarByID } from "../../../services/carService"; // ✅ ใช้ service ของเรา
+import { getCarByID } from "../../../services/carService";
+import { createSalesContract } from "../../../services/salesContractService";
+import { getSaleListByCarAndPrice } from "../../../services/saleService"; // ✅ เพิ่มการ import service ใหม่
 import type { CarInfo } from "../../../interface/Car";
 import { useAuth } from "../../../hooks/useAuth";
 
@@ -13,21 +15,19 @@ const BuyCarDetailPage: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
-  const [car, setCar] = useState<CarInfo | null>(null); // ✅ ใช้ state แทน carList
+  const [car, setCar] = useState<CarInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [buy, setBuy] = useState(false);
   const [book, setBook] = useState(false);
 
   const isAnyModalOpen = buy || book;
 
-  // Scroll top ทุกครั้งที่เข้าหน้า
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, []);
 
-  // Fetch car จาก backend
   useEffect(() => {
     const fetchCar = async () => {
       try {
@@ -46,7 +46,6 @@ const BuyCarDetailPage: React.FC = () => {
     fetchCar();
   }, [id]);
 
-  // เปิด modal buy ถ้ามี user และ location state
   useEffect(() => {
     if (user && location.state?.openModal === "buy") {
       setBuy(true);
@@ -54,7 +53,6 @@ const BuyCarDetailPage: React.FC = () => {
     }
   }, [user, location, navigate]);
 
-  // ป้องกัน scroll เมื่อ modal เปิด
   useEffect(() => {
     if (isAnyModalOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
@@ -69,10 +67,39 @@ const BuyCarDetailPage: React.FC = () => {
     }
   };
 
-  const handleConfirmBuy = () => {
-    setBuy(false);
-    message.success("ยืนยันการสั่งซื้อแล้ว กำลังพาไปหน้าชำระเงิน...");
-    navigate("/payment");
+  // ✅ แก้ไขฟังก์ชัน handleConfirmBuy เพื่อใช้ service ใหม่
+  const handleConfirmBuy = async () => {
+    if (!user || !token || !car || !id) {
+      message.error("ข้อมูลไม่ครบถ้วน ไม่สามารถสร้างสัญญาได้");
+      return;
+    }
+
+     try {
+    // ✅ แก้ไขการเรียก service โดยแปลงค่า price เป็น float
+    const price = parseFloat(car.sale_list?.[0]?.sale_price.toString() || '0');
+    const saleListData = await getSaleListByCarAndPrice(id, price);
+
+    if (!saleListData?.ID || !saleListData?.EmployeeID) {
+      message.error("ไม่พบข้อมูล Sale List ที่ถูกต้อง");
+      return;
+    }
+
+      // ✅ 2. ใช้ข้อมูลที่ค้นหาได้เพื่อสร้าง SalesContract
+      const contractData = {
+        SaleListID: saleListData.ID,
+        EmployeeID: saleListData.EmployeeID,
+        CustomerID: user.ID,
+      };
+
+      await createSalesContract(contractData, token);
+      setBuy(false);
+      setBook(false);
+      message.success("สร้างสัญญาซื้อขายสำเร็จ กำลังพาไปหน้าชำระเงิน...");
+      navigate("/payment");
+    } catch (error) {
+      console.error("Failed to create sales contract:", error);
+      message.error("เกิดข้อผิดพลาดในการสร้างสัญญาซื้อขาย");
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -88,13 +115,18 @@ const BuyCarDetailPage: React.FC = () => {
   const thumbImages = car.pictures?.slice(1, 5).map(p => `${baseUrl}/${p.path}`) || [];
 
   return (
-    <div className={`page-container ${isAnyModalOpen ? "blurred" : ""}`} style={{ backgroundColor: "#000", minHeight: "100vh", padding: "20px", transition: "filter 0.3s ease" }}>
+    <div className={`page-container ${isAnyModalOpen ? "blurred" : ""}`}
+      style={{ backgroundColor: "#000", minHeight: "100vh", padding: "20px", transition: "filter 0.3s ease" }}>
       <Row gutter={16}>
-        {/* ภาพใหญ่และภาพย่อย */}
         <Col xs={24} md={16}>
           <Card
             bordered={false}
-            style={{ backgroundColor: "#1a1a1a", borderRadius: 12, border: "2px solid gold", transition: "box-shadow 0.3s ease-in-out" }}
+            style={{
+              backgroundColor: "#1a1a1a",
+              borderRadius: 12,
+              border: "2px solid gold",
+              transition: "box-shadow 0.3s ease-in-out"
+            }}
             onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 215, 0, 0.4)")}
             onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
           >
@@ -109,7 +141,6 @@ const BuyCarDetailPage: React.FC = () => {
           </Card>
         </Col>
 
-        {/* ข้อมูลด้านขวา */}
         <Col xs={24} md={8}>
           <Card
             bordered={false}
@@ -148,7 +179,21 @@ const BuyCarDetailPage: React.FC = () => {
               <Button
                 icon={<PushpinOutlined />}
                 block
-                style={{ backgroundColor: "gold", color: "black", fontWeight: "bold", border: "2px solid gold", borderRadius: "10px", boxShadow: "0 2px 8px rgba(255, 215, 0, 0.4)" }}
+                style={{
+                  backgroundColor: "gold",
+                  color: "black", fontWeight: "bold",
+                  border: "2px solid gold",
+                  borderRadius: "10px",
+                  boxShadow: "0 2px 8px rgba(255, 215, 0, 0.4)"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "black";
+                  e.currentTarget.style.color = "gold";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "gold";
+                  e.currentTarget.style.color = "black";
+                }}
                 onClick={() => setBook(true)}
               >
                 จอง
@@ -162,13 +207,73 @@ const BuyCarDetailPage: React.FC = () => {
                 maskClosable={false}
                 width={600}
                 centered
+                styles={{
+                  body: {
+                    backgroundColor: '#000000'
+                  },
+                  header: {
+                    backgroundColor: '#000000',
+                    borderBottom: '1px solid #000000'
+                  },
+                  footer: {
+                    backgroundColor: '#000000',
+                    borderTop: '1px solid #000000'
+                  },
+                  content: {
+                    backgroundColor: '#000000',
+                    border: '2px solid #f1d430ff',
+                    borderRadius: '8px'
+                  }
+                }}
                 footer={[
-                  <Button key="back" onClick={() => setBook(false)} style={{ backgroundColor: "gold", color: "black" }}>ยกเลิก</Button>,
-                  <Button key="submit" onClick={handleConfirmBuy} style={{ backgroundColor: "gold", color: "black" }}>ยืนยัน</Button>
+                  <Button
+                    key="back"
+                    onClick={() => setBook(false)}
+                    style={{
+                      backgroundColor: "gold",
+                      color: "black",
+                      fontWeight: "bold",
+                      border: "2px solid gold",
+                      borderRadius: "10px",
+                      boxShadow: "0 2px 8px rgba(255, 215, 0, 0.4)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "black";
+                      e.currentTarget.style.color = "gold";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "gold";
+                      e.currentTarget.style.color = "black";
+                    }}
+                  >
+                    ยกเลิก
+                  </Button>,
+                  <Button
+                    key="submit"
+                    onClick={handleConfirmBuy}
+                    style={{
+                      backgroundColor: "gold",
+                      color: "black",
+                      fontWeight: "bold",
+                      border: "2px solid gold",
+                      borderRadius: "10px",
+                      boxShadow: "0 2px 8px rgba(255, 215, 0, 0.4)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "black";
+                      e.currentTarget.style.color = "gold";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "gold";
+                      e.currentTarget.style.color = "black";
+                    }}
+                  >
+                    ยืนยัน
+                  </Button>,
                 ]}
               >
                 <div style={{ color: 'white' }}>
-                  <p>ชื่อ-นามสกุล : </p>
+                  <p>ชื่อ-นามสกุล : {user?.first_name} {user?.last_name}</p>
                   <p>รถยนต์ : {car.brand?.brandName} {car.model?.modelName} ปี {car.yearManufacture}</p>
                   <p>ราคา : {car.sale_list?.[0]?.sale_price.toLocaleString()} บาท</p>
                 </div>
@@ -177,7 +282,22 @@ const BuyCarDetailPage: React.FC = () => {
               <Button
                 icon={<ShoppingCartOutlined />}
                 block
-                style={{ backgroundColor: "gold", color: "black", fontWeight: "bold", border: "2px solid gold", borderRadius: "10px" }}
+                style={{
+                  backgroundColor: "gold",
+                  color: "black",
+                  fontWeight: "bold",
+                  border: "2px solid gold",
+                  borderRadius: "10px",
+                  boxShadow: "0 2px 8px rgba(255, 215, 0, 0.4)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "black";
+                  e.currentTarget.style.color = "gold";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "gold";
+                  e.currentTarget.style.color = "black";
+                }}
                 onClick={handleBuyClick}
               >
                 สั่งซื้อ
@@ -191,13 +311,73 @@ const BuyCarDetailPage: React.FC = () => {
                 maskClosable={false}
                 width={600}
                 centered
+                styles={{
+                  body: {
+                    backgroundColor: '#000000'
+                  },
+                  header: {
+                    backgroundColor: '#000000',
+                    borderBottom: '1px solid #000000'
+                  },
+                  footer: {
+                    backgroundColor: '#000000',
+                    borderTop: '1px solid #000000'
+                  },
+                  content: {
+                    backgroundColor: '#000000',
+                    border: '2px solid #f1d430ff',
+                    borderRadius: '8px'
+                  }
+                }}
                 footer={[
-                  <Button key="back" onClick={() => setBuy(false)} style={{ backgroundColor: "gold", color: "black" }}>ยกเลิก</Button>,
-                  <Button key="submit" onClick={handleConfirmBuy} style={{ backgroundColor: "gold", color: "black" }}>ยืนยัน</Button>
+                  <Button
+                    key="back"
+                    onClick={() => setBuy(false)}
+                    style={{
+                      backgroundColor: "gold",
+                      color: "black",
+                      fontWeight: "bold",
+                      border: "2px solid gold",
+                      borderRadius: "10px",
+                      boxShadow: "0 2px 8px rgba(255, 215, 0, 0.4)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "black";
+                      e.currentTarget.style.color = "gold";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "gold";
+                      e.currentTarget.style.color = "black";
+                    }}
+                  >
+                    ยกเลิก
+                  </Button>,
+                  <Button
+                    key="submit"
+                    onClick={handleConfirmBuy}
+                    style={{
+                      backgroundColor: "gold",
+                      color: "black",
+                      fontWeight: "bold",
+                      border: "2px solid gold",
+                      borderRadius: "10px",
+                      boxShadow: "0 2px 8px rgba(255, 215, 0, 0.4)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "black";
+                      e.currentTarget.style.color = "gold";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "gold";
+                      e.currentTarget.style.color = "black";
+                    }}
+                  >
+                    ยืนยัน
+                  </Button>,
                 ]}
               >
-                <div style={{ color: 'black' }}>
-                  <p>ชื่อ-นามสกุล : </p>
+                <div style={{ color: 'white' }}>
+                  <p>ชื่อ-นามสกุล : {user?.first_name} {user?.last_name}</p>
                   <p>รถยนต์ : {car.brand?.brandName} {car.model?.modelName} ปี {car.yearManufacture}</p>
                   <p>ราคา : {car.sale_list?.[0]?.sale_price.toLocaleString()} บาท</p>
                 </div>

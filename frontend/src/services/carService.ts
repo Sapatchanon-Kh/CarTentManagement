@@ -1,7 +1,7 @@
 // src/service/carService.ts
 
-import type { CarInfo, CarPicture, SaleInfo, RentInfo, Brand, CarModel, SubModel, Employee } from '../interface/Car';
-
+import type { CarInfo, CarPicture, SaleInfo, RentInfo, Brand, CarModel, SubModel} from '../interface/Car';
+import type { Employee } from '../interface/Employee';
 const API_URL = "/cars"; // ใช้ proxy ของ Vite
 
 // ดึงรถทั้งหมด

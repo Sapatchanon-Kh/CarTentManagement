@@ -10,12 +10,13 @@ import Notification from "../../../components/common/Notification";
 import { getMyEmployee, updateEmployee } from "../../../services/employeeService";
 import { getLeavesByEmployee, createLeave } from "../../../services/leaveService";
 import { useAuth } from "../../../hooks/useAuth";
+import { validateAll } from "../../../utils/validation";
 
 import type { Employee } from "../../../types/employee";
 import type { Leave, LeaveType } from "../../../types/leave";
 
 const EmployeeDashboard: React.FC = () => {
-  const { token } = useAuth(); // ✅ ใช้ token จาก AuthContext
+  const { token } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -64,6 +65,15 @@ const EmployeeDashboard: React.FC = () => {
   // ✅ บันทึกข้อมูลพนักงาน
   const handleSave = async () => {
     if (!formData) return;
+
+    // ตรวจสอบข้อมูลก่อนบันทึก
+    const validationErrors = validateAll(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      showNotification({ type: "error", message: "กรุณากรอกข้อมูลให้ครบถ้วน" });
+      return; // ❌ ไม่ส่งไป backend ถ้า validate ไม่ผ่าน
+    }
+
     try {
       setLoading(true);
       const updated = await updateEmployee(formData);
@@ -71,8 +81,11 @@ const EmployeeDashboard: React.FC = () => {
       setIsEditing(false);
       setErrors({});
       showNotification({ type: "success", message: "บันทึกสำเร็จ!" });
-    } catch {
-      showNotification({ type: "error", message: "เกิดข้อผิดพลาดในการบันทึกข้อมูล" });
+    } catch (err: any) {
+      showNotification({
+        type: "error",
+        message: err.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+      });
     } finally {
       setLoading(false);
     }
@@ -85,7 +98,7 @@ const EmployeeDashboard: React.FC = () => {
 
     try {
       const leave = await createLeave({
-        employeeID, // ✅ ตอนนี้เป็น number แล้ว
+        employeeID,
         startDate: data.startDate,
         endDate: data.endDate,
         type: data.type,

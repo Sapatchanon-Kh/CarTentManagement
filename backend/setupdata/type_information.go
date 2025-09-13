@@ -12,7 +12,7 @@ func InsertTypeInformations(db *gorm.DB) {
 	types := []entity.TypeInformation{
 		// VVVV --- แก้ไขชื่อฟิลด์เป็น Type --- VVVV
 		{Type: "รับที่เต็นท์"},
-		{Type: "ให้ไปส่งตามที่อยู่"},
+		{Type: "ให้ไปส่งตามที่อยู่(เฉพาะเขตกรุงเทพฯ)"},
 	}
 
 	for _, t := range types {

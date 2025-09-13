@@ -18,8 +18,8 @@ const RegisterPage: React.FC = () => {
 
         // แก้ไข payload ให้ใช้ชื่อคีย์แบบ PascalCase เพื่อให้ตรงกับ Backend
         const payload = {
-            FirstName: values.firstName, // เปลี่ยนเป็น PascalCase
-            LastName: values.lastName,   // เปลี่ยนเป็น PascalCase
+            first_name: values.firstName, // เปลี่ยนเป็น PascalCase
+            last_name: values.lastName,   // เปลี่ยนเป็น PascalCase
             Email: values.email,
             Password: values.password,
             Phone: values.phoneNumber,

@@ -7,10 +7,10 @@ import {
 import { useNavigate } from 'react-router-dom';
 import thTH from 'antd/locale/th_TH';
 import {
-    PlusCircleOutlined, EditOutlined, CalendarOutlined,
+    PlusCircleOutlined, CalendarOutlined,
     ClockCircleOutlined, UserOutlined, EnvironmentOutlined, CloseCircleOutlined,
     CheckCircleOutlined, LoadingOutlined, SortAscendingOutlined, SortDescendingOutlined,
-    FileTextOutlined // เพิ่มไอคอนสำหรับหมายเลขสัญญา
+    FileTextOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import 'dayjs/locale/th';
@@ -34,6 +34,13 @@ const colors = {
     grayLight: '#424242',
 };
 
+// แก้ไข Interface ให้ตรงกับข้อมูลที่ส่งมาจาก Backend
+interface Employee {
+    employeeID: number;
+    firstName: string;
+    lastName: string;
+}
+
 interface PickupBooking {
     ID: number;
     Customer: {
@@ -54,10 +61,7 @@ interface PickupBooking {
     SubDistrict: {
         SubDistrictName: string;
     };
-    Employee: {
-        first_name: string;
-        last_name: string;
-    };
+    Employee: Employee; // ใช้ Interface Employee ที่แก้ไขแล้ว
     status: string;
 }
 
@@ -128,9 +132,7 @@ const PickupCarPage: React.FC = () => {
         navigate('/pickup-car/create');
     };
 
-    const handleEditBooking = (id: number) => {
-        navigate(`/pickup-car/create?id=${id}`);
-    };
+    
 
     const handleCancelBooking = (booking: PickupBooking) => {
         setBookingToCancel(booking);
@@ -307,7 +309,7 @@ const PickupCarPage: React.FC = () => {
                                                 <ClockCircleOutlined /> เวลา: {bookingDateTime.isValid() ? bookingDateTime.format('HH:mm') : 'Invalid Date'} น.
                                             </Text>
                                             <Text style={{ color: 'white' }}>
-                                                <UserOutlined /> พนักงาน: {booking.Employee?.first_name} {booking.Employee?.last_name}
+                                                <UserOutlined /> พนักงาน: {booking.Employee?.firstName} {booking.Employee?.lastName}
                                             </Text>
                                             <Text style={{ color: 'white' }}>
                                                 <EnvironmentOutlined /> สถานที่: {booking.Address} {booking.SubDistrict?.SubDistrictName} {booking.District?.DistrictName} {booking.Province?.ProvinceName}
@@ -318,9 +320,7 @@ const PickupCarPage: React.FC = () => {
                                         </Space>
                                         {canModifyOrCancel && (
                                             <Space style={{ marginTop: '20px' }}>
-                                                <Button icon={<EditOutlined />} onClick={() => handleEditBooking(booking.ID)} style={{ background: '#5e5e5e', color: 'white', borderColor: '#777' }}>
-                                                    แก้ไข
-                                                </Button>
+                                               
                                                 <Button icon={<CloseCircleOutlined />} danger onClick={() => handleCancelBooking(booking)}>
                                                     ยกเลิก
                                                 </Button>

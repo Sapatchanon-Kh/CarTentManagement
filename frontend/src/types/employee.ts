@@ -1,10 +1,8 @@
-import type dayjs from "dayjs";
-
-export type Sex = ""|"male" | "female" | "other";
-export type JobType = ""|"Full-time" | "Part-time" | "Contract";
+export type Sex = "" | "male" | "female" | "other";
+export type JobType = "" | "Full-time" | "Part-time" | "Contract";
 
 export interface Employee {
-  employeeID: number;   // ✅ เปลี่ยนจาก string → number
+  employeeID: number;
   profileImage: string;
   firstName: string;
   lastName: string;
@@ -12,7 +10,7 @@ export interface Employee {
   phone: string;
   address: string;
   sex: Sex;
-  birthday: dayjs.Dayjs;
+  birthday?: string;  // ✅ ใช้ string (YYYY-MM-DD)
   position: string;
   jobType: JobType;
   totalSales: string;

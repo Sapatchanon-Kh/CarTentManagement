@@ -1,5 +1,5 @@
 brand_name,model_name,submodel_name,car_name,year_manufacture,purchase_price,purchase_date,color,province_id,employee_id,mileage,condition,car_front,car_side,car_interior,car_main,car_bottom
-Toyota,Corolla,Corolla Altis,Toyota Corolla Altis,2020,750000,2020-03-15,White,1,1,45200,ดี,car1_front.jpg,car1_side.jpg,car1_interior.jpg,car1_main.jpg,car1_bottom.jpg
+Toyota,Camry,Camry 2.0 G,Toyota Camry 2.0 G,2012,333333,2020-03-15,White,1,1,45200,ดี,car2_front.jpg,car2_side.jpg,car2_interior.jpg,car2_main.jpg,car2_bottom.jpg
 Toyota,Corolla,Corolla LE,Toyota Corolla LE,2021,770000,2021-05-10,Black,2,2,38500,ปานกลาง,car1_front.jpg,car1_side.jpg,car1_interior.jpg,car1_main.jpg,car1_bottom.jpg
 Toyota,Corolla,Corolla G,Toyota Corolla G,2019,730000,2019-07-20,Silver,3,3,61800,แย่,car1_front.jpg,car1_side.jpg,car1_interior.jpg,car1_main.jpg,car1_bottom.jpg
 Toyota,Camry,Camry SE,Toyota Camry SE,2020,1200000,2020-01-25,Blue,1,1,70200,ดี,car1_front.jpg,car1_side.jpg,car1_interior.jpg,car1_main.jpg,car1_bottom.jpg

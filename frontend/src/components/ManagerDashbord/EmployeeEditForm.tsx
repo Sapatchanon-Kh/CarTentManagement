@@ -17,12 +17,19 @@ const EmployeeEditForm: React.FC<Props> = ({ employee, onCancel, onSave }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // ✅ ถ้า jobType ว่าง ให้ default เป็น "Full-time"
+    const payload = {
+      ...formData,
+      jobType: formData.jobType || "Full-time",
+    };
+
     // ✅ ถ้ามี employeeID แสดงว่าแก้ไข
-    if ("employeeID" in formData && formData.employeeID !== undefined) {
-      onSave(formData as Employee);
+    if ("employeeID" in payload && payload.employeeID !== undefined) {
+      onSave(payload as Employee);
     } else {
       // ✅ ถ้าไม่มี employeeID แสดงว่าเพิ่มใหม่
-      const { employeeID, ...newData } = formData;
+      const { employeeID, ...newData } = payload;
       onSave(newData as Omit<Employee, "employeeID">);
     }
   };
@@ -36,33 +43,55 @@ const EmployeeEditForm: React.FC<Props> = ({ employee, onCancel, onSave }) => {
           {formData.employeeID && (
             <div className="form-group">
               <label>ID</label>
-              <input
-                id="employeeID"
-                value={formData.employeeID}
-                disabled
-              />
+              <input id="employeeID" value={formData.employeeID} disabled />
             </div>
           )}
 
           <div className="form-group">
             <label>ชื่อ</label>
-            <input id="firstName" value={formData.firstName || ""} onChange={handleChange} required />
+            <input
+              id="firstName"
+              value={formData.firstName || ""}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div className="form-group">
             <label>นามสกุล</label>
-            <input id="lastName" value={formData.lastName || ""} onChange={handleChange} required />
+            <input
+              id="lastName"
+              value={formData.lastName || ""}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div className="form-group">
             <label>อีเมล</label>
-            <input id="email" type="email" value={formData.email || ""} onChange={handleChange} required />
+            <input
+              id="email"
+              type="email"
+              value={formData.email || ""}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div className="form-group">
             <label>ตำแหน่ง</label>
-            <input id="position" value={formData.position || ""} onChange={handleChange} required />
+            <input
+              id="position"
+              value={formData.position || ""}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div className="form-group">
             <label>ประเภทงาน</label>
-            <select id="jobType" value={formData.jobType || "Full-time"} onChange={handleChange}>
+            <select
+              id="jobType"
+              value={formData.jobType || ""}
+              onChange={handleChange}
+            >
+              <option value="">-- ไม่ระบุ --</option>
               <option value="Full-time">Full-time</option>
               <option value="Part-time">Part-time</option>
               <option value="Contract">Contract</option>
@@ -70,11 +99,17 @@ const EmployeeEditForm: React.FC<Props> = ({ employee, onCancel, onSave }) => {
           </div>
           <div className="form-group">
             <label>ยอดขายรวม</label>
-            <input id="totalSales" value={formData.totalSales || ""} onChange={handleChange} />
+            <input
+              id="totalSales"
+              value={formData.totalSales || ""}
+              onChange={handleChange}
+            />
           </div>
           <div className="modal-buttons">
             <button type="submit">บันทึก</button>
-            <button type="button" onClick={onCancel}>ยกเลิก</button>
+            <button type="button" onClick={onCancel}>
+              ยกเลิก
+            </button>
           </div>
         </form>
       </div>

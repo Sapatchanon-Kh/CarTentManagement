@@ -33,7 +33,7 @@ func InsertMockPickupDelivery(db *gorm.DB) {
 
 	var typeInfo entity.TypeInformation
 	// VVVV --- แก้ไขชื่อคอลัมน์และชื่อตัวแปรตรงนี้ --- VVVV
-	db.Where("type = ?", "ให้ไปส่งตามที่อยู่").First(&typeInfo)
+	db.Where("type = ?", "ให้ไปส่งตามที่อยู่(เฉพาะเขตกรุงเทพฯ)").First(&typeInfo)
 
 	var province entity.Province
 	// VVVV --- แก้ไขชื่อจังหวัดตรงนี้ --- VVVV
@@ -45,7 +45,7 @@ func InsertMockPickupDelivery(db *gorm.DB) {
 	var subDistrict entity.SubDistrict
 	db.Where("district_id = ? AND sub_district_name = ?", district.ID, "ปทุมวัน").First(&subDistrict)
 
-	appointmentTime, err := time.Parse(time.RFC3339, "2025-09-11T15:00:00Z")
+	appointmentTime, err := time.Parse(time.RFC3339, "2025-09-10T14:00:00+07:00")
 	if err != nil {
 		log.Fatalf("failed to parse appointment time: %v", err)
 	}

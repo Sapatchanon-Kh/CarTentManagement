@@ -57,6 +57,8 @@ func main() {
 	salesContractController := controllers.NewSalesContractController(configs.DB)
 	leaveController := controllers.NewLeaveController(configs.DB) // ✅ เพิ่ม LeaveController
 	rentListController := controllers.NewRentListController(configs.DB)
+	saleListController := controllers.NewSaleListController(configs.DB)
+	rentContractController := controllers.NewRentContractController(configs.DB)
 	saleController := controllers.NewSaleController(configs.DB)
 	// --- Routes ---
 
@@ -65,6 +67,7 @@ func main() {
 	r.POST("/login", customerController.LoginCustomer)
 	r.POST("/employee/login", employeeController.LoginEmployee)
 	r.POST("/manager/login", managerController.LoginManager)
+	r.GET("/employees", employeeController.GetEmployees) // 👈 เพิ่มบรรทัดนี้
 
 	r.Static("/images/cars", "./public/images/cars")
 	// Car Routes
@@ -110,7 +113,17 @@ func main() {
 		employeeProtectedRoutes.GET("/me", employeeController.GetCurrentEmployee)
 		employeeProtectedRoutes.PUT("/me", employeeController.UpdateCurrentEmployee)
 	}
+	// SaleList Routes
+	saleListRoutes := r.Group("/salelists") // ✅ เพิ่ม Route ใหม่
+	{
+		saleListRoutes.GET("/car/:carId/price/:price", saleListController.GetSaleListByCarAndPrice) // ✅ เพิ่ม Route สำหรับการค้นหา
+	}
 
+	// RentContract Routes
+	rentContractRoutes := r.Group("/rent-contracts")
+	{
+		rentContractRoutes.POST("", rentContractController.CreateRentContract)
+	}
 	// SalesContract Routes
 	salesContractRoutes := r.Group("/sales-contracts")
 
@@ -138,28 +151,34 @@ func main() {
 	// Pickup Delivery Routes
 	pickupDeliveryRoutes := r.Group("/pickup-deliveries")
 	{
-		pickupDeliveryRoutes.GET("/:id", pickupDeliveryController.GetPickupDeliveryByID)
-		pickupDeliveryRoutes.GET("/employee/:employeeID", pickupDeliveryController.GetPickupDeliveriesByEmployeeID)
-		pickupDeliveryRoutes.GET("", pickupDeliveryController.GetPickupDeliveries)
-		pickupDeliveryRoutes.GET("/customer/:customerID", pickupDeliveryController.GetPickupDeliveriesByCustomerID)
-		pickupDeliveryRoutes.POST("", pickupDeliveryController.CreatePickupDelivery)
-		pickupDeliveryRoutes.PUT("/:id", pickupDeliveryController.UpdatePickupDelivery)
-		pickupDeliveryRoutes.PATCH("/:id/status", pickupDeliveryController.UpdatePickupDeliveryStatus)
-		pickupDeliveryRoutes.DELETE("/:id", pickupDeliveryController.DeletePickupDelivery)
+		{
+			// 1. ย้ายเส้นทางที่เฉพาะเจาะจงมากกว่าขึ้นมาไว้ด้านบน
+			pickupDeliveryRoutes.GET("", pickupDeliveryController.GetPickupDeliveries)
+			pickupDeliveryRoutes.GET("/employee/:employeeID", pickupDeliveryController.GetPickupDeliveriesByEmployeeID)
+			pickupDeliveryRoutes.GET("/customer/:customerID", pickupDeliveryController.GetPickupDeliveriesByCustomerID)
+
+			// 2. เส้นทางที่ใช้พารามิเตอร์ทั่วไป (/:id) จะอยู่ถัดลงมา
+			pickupDeliveryRoutes.GET("/:id", pickupDeliveryController.GetPickupDeliveryByID)
+
+			// 3. เส้นทางสำหรับการสร้างและแก้ไขข้อมูล
+			pickupDeliveryRoutes.POST("", pickupDeliveryController.CreatePickupDelivery)
+			pickupDeliveryRoutes.PUT("/:id", pickupDeliveryController.UpdatePickupDelivery)
+			pickupDeliveryRoutes.PATCH("/:id/status", pickupDeliveryController.UpdatePickupDeliveryStatus)
+			pickupDeliveryRoutes.DELETE("/:id", pickupDeliveryController.DeletePickupDelivery)
+		}
 	}
 
-	// Public Employee Routes
-	employeePublicRoutes := r.Group("/employees")
-	{
-		employeePublicRoutes.GET("", employeeController.GetEmployees)
-		employeePublicRoutes.GET("/:id", employeeController.GetEmployeeByID)
-	}
-
-	// Admin-Only Routes
+	//public Employee Routes (สำหรับดูข้อมูลพนักงาน)
+	// employeePublicRoutes := r.Group("/employees")
+	// {
+	// 	employeePublicRoutes.GET("", employeeController.GetEmployees)
+	// 	employeePublicRoutes.GET("/:id", employeeController.GetEmployeeByID)
+	// }
 
 	// ✅ New API Group (สำหรับ Manager + Leaves)
 	api := r.Group("/api")
 	{
+
 		// Leave Routes
 		api.GET("/leaves", leaveController.ListLeaves)
 		api.GET("/employees/:id/leaves", leaveController.ListLeavesByEmployee)

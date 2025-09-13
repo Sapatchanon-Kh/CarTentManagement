@@ -21,7 +21,7 @@ const isEmployee = (user: User): user is Employee => {
 
 // Helper function to check if a user is a Customer based on a unique property
 const isCustomer = (user: User): user is Customer => {
-  return (user as Customer).Phone !== undefined;
+  return (user as Customer).phone !== undefined;
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

@@ -35,7 +35,7 @@ type CustomerByCarResponse struct {
 	Condition string            `json:"condition"`
 	SaleList  []entity.SaleList `json:"sale_list"`
 	RentList  []entity.RentList `json:"rent_list"`
-	Employee  *entity.Employee  `json:"employee"`
+	Manager   *entity.Manager   `json:"manager"`
 	Customers []CustomerInfo    `json:"customers"`
 }
 
@@ -46,7 +46,7 @@ func (ctrl *CustomerByCarController) GetCustomerByCar(c *gin.Context) {
 	var car entity.Car
 	if err := ctrl.DB.Preload("SaleList.SalesContract.Customer").
 		Preload("RentList.RentContract.Customer").
-		Preload("Employee").
+		Preload("Manager").
 		First(&car, carID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Car not found"})
 		return
@@ -91,7 +91,7 @@ func (ctrl *CustomerByCarController) GetCustomerByCar(c *gin.Context) {
 		Condition: car.Condition,
 		SaleList:  car.SaleList,
 		RentList:  car.RentList,
-		Employee:  car.Employee,
+		Manager:   car.Manager,
 		Customers: customers,
 	}
 

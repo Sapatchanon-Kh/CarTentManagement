@@ -222,8 +222,8 @@ const InspectionCreatePage: React.FC = () => {
         if (currentCustomerString) {
             try {
                 const currentCustomer = JSON.parse(currentCustomerString);
-                setFirstName(currentCustomer.FirstName);
-                setLastName(currentCustomer.LastName);
+                setFirstName(currentCustomer.first_name);
+                setLastName(currentCustomer.last_name);
             } catch {
                 message.error('ข้อมูลใน localStorage ไม่ถูกต้อง');
                 navigate('/login');

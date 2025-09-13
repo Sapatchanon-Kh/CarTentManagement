@@ -23,17 +23,17 @@ type PickupDelivery struct {
 	DateTime time.Time `json:"DateTime"`
 
 	EmployeeID uint      `json:"EmployeeID"`
-	Employee   *Employee `gorm:"foreignKey:EmployeeID" json:"Employee"`
+	Employee   *Employee `gorm:"foreignKey:EmployeeID;references:EmployeeID" json:"Employee"`
 
 	Address string `json:"Address"`
 
-	SubDistrictID *uint         `json:"SubDistrictID"`
+	SubDistrictID *uint        `json:"SubDistrictID"`
 	SubDistrict   *SubDistrict `gorm:"foreignKey:SubDistrictID" json:"SubDistrict"`
 
-	DistrictID *uint      `json:"DistrictID"`
+	DistrictID *uint     `json:"DistrictID"`
 	District   *District `gorm:"foreignKey:DistrictID" json:"District"`
 
-	ProvinceID *uint      `json:"ProvinceID"`
+	ProvinceID *uint     `json:"ProvinceID"`
 	Province   *Province `gorm:"foreignKey:ProvinceID" json:"Province"`
 
 	Status string `json:"status"`

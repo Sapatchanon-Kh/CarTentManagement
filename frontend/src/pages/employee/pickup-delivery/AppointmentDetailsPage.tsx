@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Col, Row, Typography, Button, message, Descriptions, Tag, Space,Divider, Spin, ConfigProvider, Select } from 'antd';
+import { Card, Col, Row, Typography, Button, message, Descriptions, Tag, Space, Divider, Spin, ConfigProvider, Select } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import 'dayjs/locale/th';
@@ -28,15 +28,16 @@ const colors = {
 interface AppointmentDataFromAPI extends Record<string, any> {
   ID: number;
   Customer: {
-    FirstName: string;
-    LastName: string;
+    first_name: string;
+    last_name: string;
   };
   SalesContract: {
     ID: number;
   };
   DateTime: string;
   Employee: {
-    first_name: string;
+    FirstName: string;   // ✅ ตัว F ใหญ่
+    LastName?: string;
   };
   TypeInformation: {
     type: string;
@@ -71,6 +72,18 @@ const AppointmentDetailsPage: React.FC = () => {
       }
       setLoading(true);
       try {
+        // ✅ ดึง employee id ปัจจุบันจาก /employees/me
+        const meRes = await fetch("http://localhost:8080/employees/me", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        if (!meRes.ok) throw new Error("ไม่สามารถดึงข้อมูลพนักงานปัจจุบันได้");
+        const meData = await meRes.json();
+        const employeeId = meData.employeeID;
+        console.log("Employee ID ปัจจุบัน:", employeeId);
+
+        // ✅ ดึงรายละเอียดการนัดหมายตาม id (เหมือนเดิม)
         const response = await fetch(`http://localhost:8080/pickup-deliveries/${id}`);
         if (!response.ok) {
           throw new Error('ไม่สามารถโหลดข้อมูลการนัดหมายได้');
@@ -89,29 +102,30 @@ const AppointmentDetailsPage: React.FC = () => {
     fetchAppointmentDetails();
   }, [id, navigate]);
 
+
   const handleUpdateStatus = async () => {
     if (!appointment) return;
     try {
-        const response = await fetch(`http://localhost:8080/pickup-deliveries/${appointment.ID}/status`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pickup_delivery_status: currentStatus }),
-        });
+      const response = await fetch(`http://localhost:8080/pickup-deliveries/${appointment.ID}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pickup_delivery_status: currentStatus }),
+      });
 
-        if (!response.ok) {
-            throw new Error('การอัปเดตสถานะล้มเหลว');
-        }
+      if (!response.ok) {
+        throw new Error('การอัปเดตสถานะล้มเหลว');
+      }
 
-        const result = await response.json();
-        const updatedAppointment = result.data;
-        setAppointment(updatedAppointment); 
-        setCurrentStatus(updatedAppointment.status);
-        
-        message.success('อัปเดตสถานะเรียบร้อยแล้ว');
+      const result = await response.json();
+      const updatedAppointment = result.data;
+      setAppointment(updatedAppointment);
+      setCurrentStatus(updatedAppointment.status);
+
+      message.success('อัปเดตสถานะเรียบร้อยแล้ว');
 
     } catch (error) {
-        console.error("Failed to update status:", error);
-        message.error((error as Error).message);
+      console.error("Failed to update status:", error);
+      message.error((error as Error).message);
     }
   };
 
@@ -168,7 +182,7 @@ const AppointmentDetailsPage: React.FC = () => {
           color: ${colors.black};
         }
       `}</style>
-      
+
       <ConfigProvider theme={{
         components: {
           Descriptions: { colorText: colors.white, colorSplit: colors.gold, },
@@ -180,8 +194,8 @@ const AppointmentDetailsPage: React.FC = () => {
             colorBgContainer: colors.gray,
             colorText: colors.white,
             colorBorder: colors.gold,
-            colorBgElevated: colors.gray,      
-            optionSelectedBg: colors.gold,      
+            colorBgElevated: colors.gray,
+            optionSelectedBg: colors.gold,
             optionActiveBg: 'rgba(212, 175, 55, 0.2)',
           },
         },
@@ -195,7 +209,7 @@ const AppointmentDetailsPage: React.FC = () => {
                 </Title>
                 <Descriptions bordered column={1} size="middle">
                   <Descriptions.Item label={<Text style={labelStyle}>ชื่อ-สกุล ลูกค้า</Text>}>
-                    <Text style={contentStyle}>{`${appointment.Customer?.FirstName || ''} ${appointment.Customer?.LastName || ''}`}</Text>
+                    <Text style={contentStyle}>{`${appointment.Customer?.first_name || ''} ${appointment.Customer?.last_name || ''}`}</Text>
                   </Descriptions.Item>
                   <Descriptions.Item label={<Text style={labelStyle}>เลขที่สัญญา</Text>}>
                     <Text style={contentStyle}>SC-{appointment.SalesContract?.ID}</Text>
@@ -206,9 +220,7 @@ const AppointmentDetailsPage: React.FC = () => {
                   <Descriptions.Item label={<Text style={labelStyle}>เวลา</Text>}>
                     <Text style={contentStyle}>{dayjs(appointment.DateTime).format('HH:mm')}</Text>
                   </Descriptions.Item>
-                  <Descriptions.Item label={<Text style={labelStyle}>พนักงาน</Text>}>
-                    <Text style={contentStyle}>{appointment.Employee?.first_name}</Text>
-                  </Descriptions.Item>
+                 
                   <Descriptions.Item label={<Text style={labelStyle}>ประเภท</Text>}>
                     <Text style={contentStyle}>{appointment.TypeInformation?.type}</Text>
                   </Descriptions.Item>
@@ -225,47 +237,47 @@ const AppointmentDetailsPage: React.FC = () => {
                 </Descriptions>
 
                 <Divider />
-                
-                  <Row justify="space-between" align="middle">
-                      {!isFinalStatus ? (
-                        <Col>
-                            <Space>
-                                <Text style={contentStyle}>เปลี่ยนสถานะ:</Text>
-                                <Select
-                                    value={currentStatus}
-                                    onChange={(value) => setCurrentStatus(value)}
-                                    style={{ width: 150 }}
-                                    popupClassName="custom-dropdown-theme"
-                                >
-                                    <Option value="รอดำเนินการ">รอดำเนินการ</Option>
-                                    {/* --- vvvvv --- ส่วนที่แก้ไข --- vvvvv --- */}
-                                    {/* 2. ใช้เงื่อนไข canMarkAsCompleted เพื่อแสดงผล */}
-                                    {canMarkAsCompleted && <Option value="สำเร็จ">สำเร็จ</Option>}
-                                    {/* --- ^^^^^ --- จบส่วนที่แก้ไข --- ^^^^^ --- */}
-                                    <Option value="ยกเลิก">ยกเลิก</Option>
-                                </Select>
-                                <Button
-                                  type="primary"
-                                  icon={<SaveOutlined />}
-                                  onClick={handleUpdateStatus}
-                                >
-                                  บันทึก
-                                </Button>
-                            </Space>
-                        </Col>
-                      ) : (
-                        <Col /> 
-                      )}
-                      <Col>
-                        <Button
-                          type="default"
-                          icon={<ArrowLeftOutlined />}
-                          onClick={() => navigate('/AppointmentAll')}
+
+                <Row justify="space-between" align="middle">
+                  {!isFinalStatus ? (
+                    <Col>
+                      <Space>
+                        <Text style={contentStyle}>เปลี่ยนสถานะ:</Text>
+                        <Select
+                          value={currentStatus}
+                          onChange={(value) => setCurrentStatus(value)}
+                          style={{ width: 150 }}
+                          popupClassName="custom-dropdown-theme"
                         >
-                          กลับ
+                          <Option value="รอดำเนินการ">รอดำเนินการ</Option>
+                          {/* --- vvvvv --- ส่วนที่แก้ไข --- vvvvv --- */}
+                          {/* 2. ใช้เงื่อนไข canMarkAsCompleted เพื่อแสดงผล */}
+                          {canMarkAsCompleted && <Option value="สำเร็จ">สำเร็จ</Option>}
+                          {/* --- ^^^^^ --- จบส่วนที่แก้ไข --- ^^^^^ --- */}
+                          <Option value="ยกเลิก">ยกเลิก</Option>
+                        </Select>
+                        <Button
+                          type="primary"
+                          icon={<SaveOutlined />}
+                          onClick={handleUpdateStatus}
+                        >
+                          บันทึก
                         </Button>
-                      </Col>
-                  </Row>
+                      </Space>
+                    </Col>
+                  ) : (
+                    <Col />
+                  )}
+                  <Col>
+                    <Button
+                      type="default"
+                      icon={<ArrowLeftOutlined />}
+                      onClick={() => navigate('/AppointmentAll')}
+                    >
+                      กลับ
+                    </Button>
+                  </Col>
+                </Row>
               </Card>
             </Col>
           </Row>

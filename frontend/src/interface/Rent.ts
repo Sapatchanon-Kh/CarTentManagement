@@ -1,6 +1,44 @@
 // src/interface/Rent.ts
 import type { Dayjs } from 'dayjs';
 
+// src/interface/Rent.ts
+
+// ✅ เพิ่ม interface DateforRent ไว้ในไฟล์นี้เลย
+export interface DateforRent {
+  ID: number;
+  open_date: string;
+  close_date: string;
+  rent_price: number;
+}
+
+// ✅ แก้ไข interface RentList ให้ตรงกับ Backend
+export interface RentList {
+  ID: number;
+  CreatedAt: string;
+  UpdatedAt: string;
+  DeletedAt: string | null;
+  car_id: number;
+  status: string;
+  manager_id: number;
+  employee_id: number;
+  // rent_able_dates ใน Backend มีโครงสร้างที่ซับซ้อนกว่า
+  // แต่จาก controller เราจะรับข้อมูลที่ถูก map แล้ว
+  // ดังนั้นโครงสร้างนี้จะขึ้นอยู่กับ response ที่แท้จริงจาก API
+  rent_able_dates?: DateforRent[];
+  rent_contracts?: any[];
+}
+
+export interface RentPeriod {
+  rent_price: number;
+  rent_start_date: string;
+  rent_end_date: string;
+}
+
+export interface CarResponse {
+  ID: number;
+  rent_list: RentPeriod[];
+}
+
 export interface RentPeriod {
   id?: number;
   rent_price: number;

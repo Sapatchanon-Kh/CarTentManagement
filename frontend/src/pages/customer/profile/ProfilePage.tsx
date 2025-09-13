@@ -20,10 +20,10 @@ const { Panel } = Collapse;
 
 interface Customer {
   ID: number;
-  FirstName: string;
-  LastName: string;
-  Email: string;
-  Phone: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
   Birthday: string;
   Password?: string;
 }
@@ -33,7 +33,7 @@ interface SalesContract {
   Employee: {
     first_name: string;
     last_name: string;
-    Phone: string;
+    phone: string;
   };
   SaleList: {
     Car: {
@@ -79,18 +79,18 @@ const CusProfilePage: React.FC = () => {
         const data = await response.json();
         const mappedData: Customer = {
           ID: data.ID,
-          FirstName: data.FirstName,
-          LastName: data.LastName,
-          Email: data.Email,
-          Phone: data.Phone,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          email: data.email,
+          phone: data.phone,
           Birthday: data.Birthday || data.birthday,
         };
         setCustomerData(mappedData);
         form.setFieldsValue({
-          firstName: mappedData.FirstName,
-          lastName: mappedData.LastName,
-          email: mappedData.Email,
-          phone: mappedData.Phone,
+          first_name: mappedData.first_name,
+          last_name: mappedData.last_name,
+          email: mappedData.email,
+          phone: mappedData.phone,
           birthday: mappedData.Birthday ? dayjs(mappedData.Birthday) : null,
         });
       } catch (error) {
@@ -138,10 +138,10 @@ const CusProfilePage: React.FC = () => {
     setIsEditMode(false);
     if (customerData) {
       form.setFieldsValue({
-        firstName: customerData.FirstName,
-        lastName: customerData.LastName,
-        email: customerData.Email,
-        phone: customerData.Phone,
+        first_name: customerData.first_name,
+        last_name: customerData.last_name,
+        email: customerData.email,
+        phone: customerData.phone,
         birthday: customerData.Birthday ? dayjs(customerData.Birthday) : null,
       });
     }
@@ -159,8 +159,8 @@ const CusProfilePage: React.FC = () => {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          first_name: values.firstName,
-          last_name: values.lastName,
+          first_name: values.first_name,
+          last_name: values.last_name,
           email: values.email,
           phone: values.phone,
           birthday: values.birthday.format('YYYY-MM-DD')
@@ -174,10 +174,10 @@ const CusProfilePage: React.FC = () => {
       const updatedData = await response.json();
       const mappedUpdatedData: Customer = {
         ID: updatedData.ID,
-        FirstName: updatedData.FirstName,
-        LastName: updatedData.LastName,
-        Email: updatedData.Email,
-        Phone: updatedData.Phone,
+        first_name: updatedData.first_name,
+        last_name: updatedData.last_name,
+        email: updatedData.email,
+        phone: updatedData.phone,
         Birthday: updatedData.Birthday || updatedData.birthday,
       };
 
@@ -209,7 +209,7 @@ const CusProfilePage: React.FC = () => {
               <Row gutter={[16, 16]} justify="center">
                 <Col style={{ textAlign: 'center' }}>
                   <Avatar size={128} icon={<UserOutlined />} style={{ backgroundColor: '#f1d430ff', color: 'black' }} />
-                  <Title level={3} style={{ marginTop: '16px' }}>{customerData?.FirstName} {customerData?.LastName}</Title>
+                  <Title level={3} style={{ marginTop: '16px' }}>{customerData?.first_name} {customerData?.last_name}</Title>
                 </Col>
                 <Col xs={24}>
                   <Divider orientation="left" style={{ borderTopColor: '#f1d430ff' }}>
@@ -221,10 +221,10 @@ const CusProfilePage: React.FC = () => {
                       layout="vertical"
                       onFinish={onFinish}
                     >
-                      <Form.Item name="firstName" label="ชื่อ" rules={[{ required: true, message: 'กรุณากรอกชื่อ' }]}>
+                      <Form.Item name="first_name" label="ชื่อ" rules={[{ required: true, message: 'กรุณากรอกชื่อ' }]}>
                         <Input />
                       </Form.Item>
-                      <Form.Item name="lastName" label="นามสกุล" rules={[{ required: true, message: 'กรุณากรอกนามสกุล' }]}>
+                      <Form.Item name="last_name" label="นามสกุล" rules={[{ required: true, message: 'กรุณากรอกนามสกุล' }]}>
                         <Input />
                       </Form.Item>
                       <Form.Item name="email" label="อีเมล" rules={[{ required: true, message: 'กรุณากรอกอีเมล' }]}>
@@ -239,9 +239,9 @@ const CusProfilePage: React.FC = () => {
                     </Form>
                   ) : (
                     <Descriptions bordered column={1} size="middle" labelStyle={{ fontWeight: 'bold' }}>
-                      <Descriptions.Item label="ชื่อ-นามสกุล">{customerData?.FirstName} {customerData?.LastName}</Descriptions.Item>
-                      <Descriptions.Item label="อีเมล">{customerData?.Email}</Descriptions.Item>
-                      <Descriptions.Item label="เบอร์โทรศัพท์">{customerData?.Phone}</Descriptions.Item>
+                      <Descriptions.Item label="ชื่อ-นามสกุล">{customerData?.first_name} {customerData?.last_name}</Descriptions.Item>
+                      <Descriptions.Item label="อีเมล">{customerData?.email}</Descriptions.Item>
+                      <Descriptions.Item label="เบอร์โทรศัพท์">{customerData?.phone}</Descriptions.Item>
                       <Descriptions.Item label="วันเกิด">
                         {customerData?.Birthday ? dayjs(customerData.Birthday).locale('th').format('DD MMMM BBBB') : 'N/A'}
                       </Descriptions.Item>
@@ -299,7 +299,7 @@ const CusProfilePage: React.FC = () => {
                       >
                         <p><FileTextOutlined style={{ marginRight: '10px' }} /> <b>หมายเลขสัญญา:</b> SC-{contract.ID}</p>
                         <p><UserOutlined style={{ marginRight: '10px' }} /> <b>พนักงาน:</b> {contract.Employee?.first_name} {contract.Employee?.last_name}</p>
-                        <p><PhoneOutlined style={{ marginRight: '10px' }} /> <b>เบอร์โทรติดต่อ:</b> {contract.Employee?.Phone}</p>
+                        <p><PhoneOutlined style={{ marginRight: '10px' }} /> <b>เบอร์โทรติดต่อ:</b> {contract.Employee?.phone}</p>
                       </Card>
                     </Col>
                   ))}

@@ -3,10 +3,10 @@ import type dayjs from "dayjs";
 
 export interface Customer {
     ID: number; // เปลี่ยนจาก string เป็น number
-    FirstName: string;
-    LastName: string;
+    first_name: string;
+    last_name: string;
     Password: string;
     Email: string;
-    Phone: string;
+    phone: string;
     Birthday: dayjs.Dayjs;
 }

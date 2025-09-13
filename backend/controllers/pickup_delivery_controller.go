@@ -109,7 +109,7 @@ func (controller *PickupDeliveryController) GetPickupDeliveryByID(c *gin.Context
 	id := c.Param("id")
 	var pickupDelivery entity.PickupDelivery
 	if err := controller.DB.Preload("Customer").
-		Preload("Employee").
+		Preload("Employee"). 
 		Preload("TypeInformation").
 		Preload("SalesContract").
 		Preload("Province").

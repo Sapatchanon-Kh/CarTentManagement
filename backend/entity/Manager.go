@@ -17,5 +17,6 @@ type Manager struct {
 	LastName  string
 	Birthday  time.Time
 
+	Car      []Car      `gorm:"foreignKey:ManagerID"`
 	SaleList []SaleList `gorm:"foreignKey:ManagerID"`
 }

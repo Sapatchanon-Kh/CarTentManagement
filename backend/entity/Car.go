@@ -21,8 +21,8 @@ type Car struct {
 	ProvinceID uint      `gorm:"column:province_id" json:"province_id"`
 	Province   *Province `gorm:"foreignKey:ProvinceID" json:"province"`
 
-	EmployeeID uint
-	Employee   *Employee `gorm:"foreignKey:EmployeeID" json:"employee"`
+	ManagerID uint
+	Manager   *Manager `gorm:"foreignKey:ManagerID" json:"manager"`
 
 	DetailID uint    `json:"detail_id"`
 	Detail   *Detail `gorm:"foreignKey:DetailID" json:"detail"`

@@ -56,7 +56,7 @@ const InspectionPage: React.FC = () => {
         const transformedData: DisplayBooking[] = data.map((item: any) => ({
           id: item.ID,
           contractNumber: `SC-${item.SalesContract.ID}`,
-          customerName: `${item.Customer.FirstName} ${item.Customer.LastName}`,
+          customerName: `${item.Customer.first_name} ${item.Customer.last_name}`,
           // --- vvvvv --- ส่วนที่แก้ไข 1 --- vvvvv ---
           // เปลี่ยน item.DateTime เป็น item.date_time
           appointmentDate: dayjs.utc(item.date_time).format('D MMMM BBBB'),

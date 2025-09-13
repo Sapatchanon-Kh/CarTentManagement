@@ -2,7 +2,6 @@ package setupdata
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/PanuAutawo/CarTentManagement/backend/entity"
 	"golang.org/x/crypto/bcrypt"
@@ -23,7 +22,7 @@ func InsertMockEmployees(db *gorm.DB) {
 			Email:        "somchai@example.com",
 			Phone:        "0812345678",
 			Address:      "Bangkok, Thailand",
-			Birthday:     time.Date(1990, 5, 10, 0, 0, 0, 0, time.UTC),
+			Birthday:     "1990-05-10", // ✅ เก็บเป็น string
 			Sex:          "Male",
 			Position:     "Sales",
 			JobType:      "full-time",
@@ -36,7 +35,7 @@ func InsertMockEmployees(db *gorm.DB) {
 			Email:        "suda@example.com",
 			Phone:        "0899998888",
 			Address:      "Chiang Mai, Thailand",
-			Birthday:     time.Date(1995, 11, 20, 0, 0, 0, 0, time.UTC),
+			Birthday:     "1995-11-20", // ✅ เก็บเป็น string
 			Sex:          "Female",
 			Position:     "Programmer",
 			JobType:      "full-time",
