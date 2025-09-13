@@ -73,7 +73,7 @@ func (sc *SaleController) CreateSale(c *gin.Context) {
 	sale := entity.SaleList{
 		CarID:       input.CarID,
 		SalePrice:   input.SalePrice,
-		Status:      "available",
+		Status:      "Available",
 		ManagerID:   &input.ManagerID,
 		EmployeeID:  &input.EmployeeID,
 		Description: input.Description,
