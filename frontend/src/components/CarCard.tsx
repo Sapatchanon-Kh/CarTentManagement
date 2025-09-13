@@ -29,7 +29,9 @@ const CarCard: React.FC<CarCardProps> = ({ car, type }) => {
   const handleCancel = () => setIsModalVisible(false);
   const handlePrev = () => carouselRef.current?.prev();
   const handleNext = () => carouselRef.current?.next();
-
+  if (type === "saleView" && car.sale_list?.[0]?.status === "Sold") {
+    return null;
+  }
   // ดึงพนักงานจาก sale_list (แค่ตัวแรก)
   const employee =
     car.sale_list && car.sale_list.length > 0
@@ -42,11 +44,14 @@ const CarCard: React.FC<CarCardProps> = ({ car, type }) => {
   // render เนื้อหาตาม type
   const renderContent = () => {
     switch (type) {
-      
-      
       case "sale":
-  const saleId = car.sale_list?.[0]?.ID; // <-- ประกาศตัวแปรก่อนใช้
-  const price = Number(car.sale_list?.[0]?.sale_price) || 0;
+        if (car.sale_list?.[0]?.status === "Sold") {
+          return (
+            <h1>ขายแล้ว</h1>
+          );
+        }
+        const saleId = car.sale_list?.[0]?.ID; // <-- ประกาศตัวแปรก่อนใช้
+        const price = Number(car.sale_list?.[0]?.sale_price) || 0;
         return (
           <>
             <Tag color="green">รถสำหรับขาย</Tag>
@@ -62,7 +67,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, type }) => {
             )}
             <Divider />
             <Button type="primary" onClick={() => navigate(`/edit-sell/${saleId}`)}
-               disabled={!saleId}>
+              disabled={!saleId}>
               แก้ไขการขาย
             </Button>
           </>
@@ -87,20 +92,25 @@ const CarCard: React.FC<CarCardProps> = ({ car, type }) => {
             <Tag color="red">ยังไม่ถูกใช้งาน</Tag>
             <Divider />
             <div style={{ display: "flex", justifyContent: "center", gap: "10px", width: "100%" }}>
-            <Button type="primary" onClick={() => navigate(`/edit-car/${car.ID}`)}>
-              แก้ไข
-            </Button>
-            <Button type="primary" onClick={() => navigate(`/add-rent/${car.ID}`)}>
-              ปล่อยเช่า
-            </Button>
-             <Button type="primary" onClick={() => navigate(`/add-sell/${car.ID}`)}>
-              ขาย
-            </Button>
+              <Button type="primary" onClick={() => navigate(`/edit-car/${car.ID}`)}>
+                แก้ไข
+              </Button>
+              <Button type="primary" onClick={() => navigate(`/add-rent/${car.ID}`)}>
+                ปล่อยเช่า
+              </Button>
+              <Button type="primary" onClick={() => navigate(`/add-sell/${car.ID}`)}>
+                ขาย
+              </Button>
             </div>
           </>
         );
 
       case "saleView":
+        // ถ้า sale_list ตัวแรก status = Sold ให้ return null (ไม่แสดง)
+        if (car.sale_list?.[0]?.status === "Sold") {
+          return null;
+        }
+
         return (
           <>
             <Text>ราคา: {car.sale_list?.[0]?.sale_price?.toLocaleString()} บาท</Text>
@@ -109,11 +119,12 @@ const CarCard: React.FC<CarCardProps> = ({ car, type }) => {
             {employee && (
               <>
                 <Divider />
-                <Title level={5}></Title>
-            
-               <Button type="primary" onClick={() => navigate(`/buycar-details/${car.ID}`)}>
-              ดูรายละเอียด
-            </Button>
+                <Button
+                  type="primary"
+                  onClick={() => navigate(`/buycar-details/${car.ID}`)}
+                >
+                  ดูรายละเอียด
+                </Button>
               </>
             )}
           </>

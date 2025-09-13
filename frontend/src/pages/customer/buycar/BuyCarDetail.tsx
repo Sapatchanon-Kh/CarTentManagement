@@ -8,6 +8,7 @@ import { createSalesContract } from "../../../services/salesContractService";
 import { getSaleListByCarAndPrice } from "../../../services/saleService"; // ✅ เพิ่มการ import service ใหม่
 import type { CarInfo } from "../../../interface/Car";
 import { useAuth } from "../../../hooks/useAuth";
+import { buyCar } from "../../../services/salesContractService";
 
 const { Title, Paragraph } = Typography;
 
@@ -74,31 +75,15 @@ const BuyCarDetailPage: React.FC = () => {
       return;
     }
 
-     try {
-    // ✅ แก้ไขการเรียก service โดยแปลงค่า price เป็น float
-    const price = parseFloat(car.sale_list?.[0]?.sale_price.toString() || '0');
-    const saleListData = await getSaleListByCarAndPrice(id, price);
-
-    if (!saleListData?.ID || !saleListData?.EmployeeID) {
-      message.error("ไม่พบข้อมูล Sale List ที่ถูกต้อง");
-      return;
-    }
-
-      // ✅ 2. ใช้ข้อมูลที่ค้นหาได้เพื่อสร้าง SalesContract
-      const contractData = {
-        SaleListID: saleListData.ID,
-        EmployeeID: saleListData.EmployeeID,
-        CustomerID: user.ID,
-      };
-
-      await createSalesContract(contractData, token);
+    try {
+      await buyCar(parseInt(id), user.ID, token);
       setBuy(false);
       setBook(false);
-      message.success("สร้างสัญญาซื้อขายสำเร็จ กำลังพาไปหน้าชำระเงิน...");
+      message.success("ซื้อรถสำเร็จ! กำลังพาไปหน้าชำระเงิน...");
       navigate("/payment");
     } catch (error) {
-      console.error("Failed to create sales contract:", error);
-      message.error("เกิดข้อผิดพลาดในการสร้างสัญญาซื้อขาย");
+      console.error("Failed to buy car:", error);
+      message.error("เกิดข้อผิดพลาดในการซื้อรถ");
     }
   };
 
@@ -107,8 +92,8 @@ const BuyCarDetailPage: React.FC = () => {
 
 
   const baseUrl = "http://localhost:8080/images/cars/";
-const mainCar = car.pictures?.[0] ? `${baseUrl}${car.pictures[0].path}` : "";
-const thumbnails = car.pictures?.slice(1) || [];
+  const mainCar = car.pictures?.[0] ? `${baseUrl}${car.pictures[0].path}` : "";
+  const thumbnails = car.pictures?.slice(1) || [];
 
   return (
     <div className={`page-container ${isAnyModalOpen ? "blurred" : ""}`}
@@ -129,10 +114,10 @@ const thumbnails = car.pictures?.slice(1) || [];
             <Image src={mainCar} alt="car-main" style={{ borderRadius: "12px", marginBottom: "10px" }} />
             <Row gutter={8}>
               {thumbnails.map((thumb, i) => (
-  <Col span={6} key={i}>
-    <Image src={`${baseUrl}${thumb.path}`} alt={`car-${i}`} style={{ borderRadius: "8px" }} />
-  </Col>
-))}
+                <Col span={6} key={i}>
+                  <Image src={`${baseUrl}${thumb.path}`} alt={`car-${i}`} style={{ borderRadius: "8px" }} />
+                </Col>
+              ))}
             </Row>
           </Card>
         </Col>

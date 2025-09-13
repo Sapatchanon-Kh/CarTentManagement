@@ -59,6 +59,7 @@ func main() {
 	rentListController := controllers.NewRentListController(configs.DB)
 	rentContractController := controllers.NewRentContractController(configs.DB)
 	saleController := controllers.NewSaleController(configs.DB)
+	buyCarController := controllers.NewBuyCarController(configs.DB)
 	// --- Routes ---
 
 	// Public Routes
@@ -112,7 +113,6 @@ func main() {
 		employeeProtectedRoutes.GET("/me", employeeController.GetCurrentEmployee)
 		employeeProtectedRoutes.PUT("/me", employeeController.UpdateCurrentEmployee)
 	}
-	
 
 	// RentContract Routes
 	rentContractRoutes := r.Group("/rent-contracts")
@@ -209,7 +209,7 @@ func main() {
 		saleControllerRoutes.POST("", saleController.CreateSale)          // POST /sale
 		saleControllerRoutes.PUT("/:id", saleController.UpdateSale)       // PUT /sale/:id
 	}
-
+	r.POST("/bycar/buy/:carID", buyCarController.BuyCar)
 	// Start server
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("Failed to run server:", err)
