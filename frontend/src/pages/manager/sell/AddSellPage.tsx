@@ -42,7 +42,10 @@ const AddSellPage: React.FC = () => {
   const handleClear = () => setFilteredCars(cars);
 
   return (
-    <div style={{ display: "flex", marginTop: 60 }}>
+    <div style={{  marginTop: 60 }}>
+      <div style={{marginTop:70, marginLeft:280, backgroundColor:'rgba(240, 226, 34, 1)',height:80 ,padding:1, alignItems:"center"}}>
+        <h1 style={{color:"black", marginLeft:80}}>เลือกรถเพื่อขายหรอปล่อยเช่า</h1>
+      </div>
       <Filter cars={cars} onApply={handleApply} onClear={handleClear} />
       <div style={{ marginLeft: 300, padding: 20, display: "flex", flexWrap: "wrap", gap: 20 }}>
         {filteredCars
@@ -51,6 +54,7 @@ const AddSellPage: React.FC = () => {
             <CarCard key={car.ID} car={car} type="noUse"  />
           ))}
       </div>
+      <div style={{marginBottom:200}}></div>
     </div>
   );
 };
