@@ -1,4 +1,5 @@
 import type { SalesContract } from '../interface/Salescontract';
+import axios from 'axios';
 
 const API_URL = 'http://localhost:8080';
 
@@ -34,4 +35,13 @@ export const createSalesContract = async (
   }
 
   return response.json();
+};
+
+export const buyCar = async (carId: number, customerId: number, token: string) => {
+  const res = await axios.post(
+    `http://localhost:8080/bycar/buy/${carId}`,
+    { customerId },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return res.data;
 };

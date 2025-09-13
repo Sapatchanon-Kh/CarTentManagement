@@ -79,7 +79,7 @@ func InsertCarsFromCSV(db *gorm.DB, filepath string) {
 			Color:           row[7],
 			ProvinceID:      uint(provinceID),
 			DetailID:        detail.ID,
-			ManagerID:      uint(managerID),
+			ManagerID:       uint(managerID),
 			Mileage:         mileage,
 			Condition:       condition,
 		}

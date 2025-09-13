@@ -8,7 +8,14 @@ export interface CarPicture {
   car_id: number;
 }
 export interface SaleInfo {
+  ID: number;
+  car_id: number;
   sale_price: number;
+  manager_id: number;   // เพิ่ม
+  employee_id: number;  // เพิ่ม
+  description: string;
+  status: string;
+  car?: CarInfo;   // 👈 เพิ่มตรงนี้
 }
 
 export interface RentInfo {
@@ -41,7 +48,7 @@ export interface Province {
 }
 
 // ---- Car Info ----
-export type CarType = 'sale' | 'rent' | 'noUse'| 'rentView'|'saleView';
+export type CarType = 'sale' | 'rent' | 'noUse'| 'rentView'|'saleView' ;
 
 export interface CarInfo {
   ID: number;
@@ -65,6 +72,7 @@ export interface CarInfo {
 
   sale_list?: SaleInfo[];
   rent_list?: RentInfo[];
+  employee?:  Employee;
 }
 
 // ---- Filter ----
@@ -95,4 +103,8 @@ export type SortField = 'condition' | 'price' | 'mileage' | 'year';
 export interface SortConfig {
   fields: SortField[];            // ลำดับ priority ของการ sort
   orders?: ('asc' | 'desc')[];   // order ของแต่ละ field, default เป็น asc
+}
+export interface Employee {
+  name: string;
+  phone: string;
 }

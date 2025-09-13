@@ -1,58 +1,108 @@
+// src/service/carService.ts
 import axios from 'axios';
-import type { CarInfo } from '../interface/Car';
-import type { Employee } from '../interface/Employee';
+import type { CarInfo, CarPicture, SaleInfo, RentInfo, Brand, CarModel, SubModel,Employee,CarType} from '../interface/Car';
 
-const API_URL = 'http://localhost:8080/cars';
-const IMAGE_BASE_URL = 'http://localhost:8080/images/cars';
+const API_URL = "http://localhost:8080/cars";
 
-export const fetchCars = async (): Promise<CarInfo[]> => {
-  const response = await axios.get(API_URL);
-  return response.data.map(mapCar);
+export const getCarById = async (id: number) => {
+  const res = await axios.get(`${API_URL}/${id}`);
+  return res.data;
 };
 
-export const fetchCarById = async (id: string | number): Promise<CarInfo> => {
-  const response = await axios.get(`${API_URL}/${id}`);
-  return mapCar(response.data);
-};
+// ดึงรถทั้งหมด
+export async function getAllCars(): Promise<CarInfo[]> {
+  const res = await fetch(`${API_URL}`);
+  if (!res.ok) throw new Error(`Failed to fetch cars: ${res.statusText}`);
+  const data = await res.json();
+  return data.map(mapBackendCarToFrontend);
+}
 
-// ----------------- Mapper -----------------
-const mapCar = (data: any): CarInfo => ({
-  ID: data.ID,
-  carName: data.car_name,
-  yearManufacture: data.year_manufacture,
-  purchasePrice: data.purchase_price,
-  startUseDate: data.purchase_date,
-  color: data.color,
-  mileage: data.mileage,
-  condition: data.condition,
+// ดึงรถตาม ID
+export async function getCarByID(id: number): Promise<CarInfo> {
+  const res = await fetch(`${API_URL}/${id}`);
+  if (!res.ok) throw new Error(`Failed to fetch car by ID: ${res.statusText}`);
+  const data = await res.json();
+  return mapBackendCarToFrontend(data);
+}
 
-  brand: data.detail?.Brand
-    ? { ID: data.detail.Brand.ID, brandName: data.detail.Brand.brand_name }
-    : undefined,
-
-  model: data.detail?.CarModel
-    ? { ID: data.detail.CarModel.ID, modelName: data.detail.CarModel.ModelName, brandID: data.detail.CarModel.brandId }
-    : undefined,
-
-  submodel: data.detail?.SubModel
-    ? { ID: data.detail.SubModel.ID, submodelName: data.detail.SubModel.SubModelName, carModelID: data.detail.SubModel.CarModelID }
-    : undefined,
-
-  province: data.province ? { ID: data.province.ID, provinceName: data.province.province_name } : undefined,
-
-  pictures: data.pictures?.map((p: any) => ({
+// map JSON backend → CarInfo
+// map JSON backend → CarInfo
+export function mapBackendCarToFrontend(data: any): CarInfo {
+  // Map pictures
+  const pictures: CarPicture[] = (data.pictures || []).map((p: any) => ({
     ID: p.ID,
-    path: `${IMAGE_BASE_URL}/${p.path}`,
+    path: p.path,
     title: p.title,
     car_id: p.car_id,
-  })),
+  }));
 
-  sale_list: data.sale_list?.map((s: any) => ({ sale_price: s.sale_price })) || [],
-  rent_list: data.rent_list?.map((r: any) => ({
+  // Map sale_list
+  const saleList: SaleInfo[] = (data.sale_list || []).map((s: any) => ({
+    ID: s.id,
+    car_id: data.id,
+    sale_price: s.sale_price,
+    manager_id: s.manager_id ?? 0, // เผื่อ backend ยังไม่ได้ส่ง
+    employee_id: s.employee_id,
+    description: s.description,
+    status: s.sale_status,
+    car: undefined, // ป้องกัน loop
+  }));
+
+  // Map rent_list
+  const rentList: RentInfo[] = (data.rent_list || []).map((r: any) => ({
     rent_price: r.rent_price,
     rent_start_date: r.rent_start_date,
     rent_end_date: r.rent_end_date,
-  })) || [],
-// ✅ เพิ่มการ map ข้อมูล Employee
-  employee: data.employee ? { ID: data.employee.ID, firstName: data.employee.first_name, lastName: data.employee.last_name } as Employee : undefined,
-});
+  }));
+
+  // Map employee (เลือกจาก sale_list อันแรกก่อน)
+  let employee: Employee | undefined = undefined;
+  if (data.sale_list && data.sale_list.length > 0) {
+    employee = {
+      name: data.sale_list[0].employee_name,
+      phone: data.sale_list[0].employee_phone,
+    };
+  }
+
+  // Map brand, model, submodel
+  const brand: Brand | undefined = data.cardetail?.brand
+    ? {
+        ID: data.cardetail.brand.ID,
+        brandName: data.cardetail.brand.brand_name,
+      }
+    : undefined;
+
+  const model: CarModel | undefined = data.cardetail?.model
+    ? {
+        ID: data.cardetail.model.ID,
+        modelName: data.cardetail.model.ModelName,
+        brandID: data.cardetail.model.brandId,
+      }
+    : undefined;
+
+  const submodel: SubModel | undefined = data.cardetail?.submodel
+    ? {
+        ID: data.cardetail.submodel.ID,
+        submodelName: data.cardetail.submodel.SubModelName,
+        carModelID: data.cardetail.submodel.CarModelID,
+      }
+    : undefined;
+
+  return {
+    ID: data.id,
+    carName: data.car_name,
+    yearManufacture: data.year_manufacture,
+    purchasePrice: data.purchase_price,
+    startUseDate: data.purchase_date,
+    color: data.color,
+    mileage: data.mileage,
+    condition: data.condition,
+    pictures,
+    sale_list: saleList,
+    rent_list: rentList,
+    brand,
+    model,
+    submodel,
+    employee,
+  };
+}

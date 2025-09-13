@@ -3,11 +3,12 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Row, Col, Card, Typography, Image, Button, Divider, Space, Modal, message } from "antd";
 import { ShoppingCartOutlined, PushpinOutlined } from "@ant-design/icons";
 
-import { fetchCarById } from "../../../services/carService";
+import { getCarByID } from "../../../services/carService";
 import { createSalesContract } from "../../../services/salesContractService";
 import { getSaleListByCarAndPrice } from "../../../services/saleService"; // ✅ เพิ่มการ import service ใหม่
 import type { CarInfo } from "../../../interface/Car";
 import { useAuth } from "../../../hooks/useAuth";
+import { buyCar } from "../../../services/salesContractService";
 
 const { Title, Paragraph } = Typography;
 
@@ -32,8 +33,9 @@ const BuyCarDetailPage: React.FC = () => {
     const fetchCar = async () => {
       try {
         if (id) {
-          const data = await fetchCarById(id);
+          const data = await getCarByID(id);
           setCar(data);
+          console.log(car);
         }
       } catch (error) {
         console.error("Fetch car error:", error);
@@ -73,39 +75,25 @@ const BuyCarDetailPage: React.FC = () => {
       return;
     }
 
-     try {
-    // ✅ แก้ไขการเรียก service โดยแปลงค่า price เป็น float
-    const price = parseFloat(car.sale_list?.[0]?.sale_price.toString() || '0');
-    const saleListData = await getSaleListByCarAndPrice(id, price);
-
-    if (!saleListData?.ID || !saleListData?.EmployeeID) {
-      message.error("ไม่พบข้อมูล Sale List ที่ถูกต้อง");
-      return;
-    }
-
-      // ✅ 2. ใช้ข้อมูลที่ค้นหาได้เพื่อสร้าง SalesContract
-      const contractData = {
-        SaleListID: saleListData.ID,
-        EmployeeID: saleListData.EmployeeID,
-        CustomerID: user.ID,
-      };
-
-      await createSalesContract(contractData, token);
+    try {
+      await buyCar(parseInt(id), user.ID, token);
       setBuy(false);
       setBook(false);
-      message.success("สร้างสัญญาซื้อขายสำเร็จ กำลังพาไปหน้าชำระเงิน...");
+      message.success("ซื้อรถสำเร็จ! กำลังพาไปหน้าชำระเงิน...");
       navigate("/payment");
     } catch (error) {
-      console.error("Failed to create sales contract:", error);
-      message.error("เกิดข้อผิดพลาดในการสร้างสัญญาซื้อขาย");
+      console.error("Failed to buy car:", error);
+      message.error("เกิดข้อผิดพลาดในการซื้อรถ");
     }
   };
 
   if (loading) return <div>Loading...</div>;
   if (!car) return <div>ไม่พบรถที่ต้องการ</div>;
 
-  const mainCarImage = car.pictures?.[0]?.path || "";
-  const thumbImages = car.pictures?.slice(1, 5).map(p => p.path) || [];
+
+  const baseUrl = "http://localhost:8080/images/cars/";
+  const mainCar = car.pictures?.[0] ? `${baseUrl}${car.pictures[0].path}` : "";
+  const thumbnails = car.pictures?.slice(1) || [];
 
   return (
     <div className={`page-container ${isAnyModalOpen ? "blurred" : ""}`}
@@ -123,11 +111,11 @@ const BuyCarDetailPage: React.FC = () => {
             onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 215, 0, 0.4)")}
             onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
           >
-            <Image src={mainCarImage} alt="car-main" style={{ borderRadius: "12px", marginBottom: "10px" }} />
+            <Image src={mainCar} alt="car-main" style={{ borderRadius: "12px", marginBottom: "10px" }} />
             <Row gutter={8}>
-              {thumbImages.map((thumb, i) => (
+              {thumbnails.map((thumb, i) => (
                 <Col span={6} key={i}>
-                  <Image src={thumb} alt={`car-${i}`} style={{ borderRadius: "8px" }} />
+                  <Image src={`${baseUrl}${thumb.path}`} alt={`car-${i}`} style={{ borderRadius: "8px" }} />
                 </Col>
               ))}
             </Row>
@@ -162,8 +150,8 @@ const BuyCarDetailPage: React.FC = () => {
 
             <div style={{ color: "#fff", lineHeight: "1.8em" }}>
               <Title level={4} style={{ color: "gold", marginTop: "-10px" }}>ติดต่อพนักงาน</Title>
-              <p>ชื่อ : Lung Tuu</p>
-              <p>เบอร์โทร : 09888866</p>
+              <p>ชื่อ : {car.employee?.name}</p>
+              <p>เบอร์โทร : {car.employee?.phone}</p>
             </div>
 
             <Divider style={{ borderColor: "rgba(255, 215, 0, 0.3)" }} />
@@ -384,9 +372,7 @@ const BuyCarDetailPage: React.FC = () => {
         <Title level={4} style={{ color: "gold" }}>รายละเอียด</Title>
         <Paragraph style={{ color: "#ccc" }}>
           {car.carName} ปี {car.yearManufacture}<br />
-          - เลขไมล์: {car.mileage?.toLocaleString()} กม.<br />
-          - สี: {car.color}<br />
-          - สภาพ: {car.condition}
+          {car.sale_list?.length ? car.sale_list[0].description : "ไม่มีรายละเอียด"}
         </Paragraph>
       </Card>
     </div>

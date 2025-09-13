@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { CarInfo, FilterValues, SortOption } from "../../../interface/Car";
-import { fetchCars } from "../../../services/carService";
+import { getAllCars } from "../../../services/carService";
 import CarCard from "../../../components/CarCard";
 import Filter from "../../../components/Filter";
 
@@ -10,7 +10,7 @@ const AddRentPage: React.FC = () => {
 
   useEffect(() => {
     const loadCars = async () => {
-      const data = await fetchCars();
+      const data = await getAllCars();
       setCars(data);
       setFilteredCars(data);
     };

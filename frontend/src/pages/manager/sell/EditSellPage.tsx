@@ -1,26 +1,11 @@
-import CarForm from '../../../components/CarForm';
-import { useParams, useNavigate } from 'react-router-dom';
-import { carList } from '../../../data/carList';
+import React from "react";
+import { useParams } from "react-router-dom";
+import SaleForm from "../../../components/SaleForm";
 
-const EditSellPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const car = carList.find(c => c.id === Number(id));
+const EditSellPage: React.FC = () => {
+  const { saleId } = useParams<{ saleId: string }>();
 
-  if (!car) return <div>ไม่พบรถ</div>;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSubmit = (data: any) => {
-    console.log("แก้ไขรถขาย:", data);
-    navigate('/sell');
-  };
-
-  return (
-    <div>
-      <h2>แก้ไขรถขาย</h2>
-      <CarForm initialData={car} onSubmit={handleSubmit} />
-    </div>
-  );
+  return <SaleForm saleId={Number(saleId)} mode="edit" />;
 };
 
 export default EditSellPage;

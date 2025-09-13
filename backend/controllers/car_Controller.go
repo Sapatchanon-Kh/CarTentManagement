@@ -12,27 +12,13 @@ type CarController struct {
 	DB *gorm.DB
 }
 
-// Constructor
 func NewCarController(db *gorm.DB) *CarController {
 	return &CarController{DB: db}
 }
 
-// Response struct สำหรับทั้ง GetAllCars และ GetCarByID
-type RentPeriod struct {
-	RentPrice     float64 `json:"rent_price"`
-	RentStartDate string  `json:"rent_start_date"`
-	RentEndDate   string  `json:"rent_end_date"`
-}
-
-type CarResponse struct {
-	entity.Car
-	SaleList []struct {
-		SalePrice float64 `json:"sale_price"`
-	} `json:"sale_list,omitempty"`
-	RentList []RentPeriod `json:"rent_list,omitempty"`
-}
-
+// =========================
 // GET /cars
+// =========================
 func (cc *CarController) GetAllCars(c *gin.Context) {
 	var cars []entity.Car
 	if err := cc.DB.Preload("Detail.Brand").
@@ -41,43 +27,25 @@ func (cc *CarController) GetAllCars(c *gin.Context) {
 		Preload("Pictures").
 		Preload("Province").
 		Preload("Manager").
-		Preload("SaleList").
+		Preload("SaleList.Employee"). // Preload Employee
+		Preload("RentList").
 		Preload("RentList.RentAbleDates.DateforRent").
 		Find(&cars).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	var resp []CarResponse
+	resp := make([]entity.CarResponse, 0)
 	for _, car := range cars {
-		cr := CarResponse{Car: car}
-
-		// SaleList
-		for _, s := range car.SaleList {
-			cr.SaleList = append(cr.SaleList, struct {
-				SalePrice float64 `json:"sale_price"`
-			}{SalePrice: s.SalePrice})
-		}
-
-		// RentList (หลายช่วง)
-		for _, r := range car.RentList {
-			for _, rd := range r.RentAbleDates {
-				if rd.DateforRent != nil {
-					cr.RentList = append(cr.RentList, RentPeriod{
-						RentPrice:     rd.DateforRent.RentPrice,
-						RentStartDate: rd.DateforRent.OpenDate.Format("2006-01-02"),
-						RentEndDate:   rd.DateforRent.CloseDate.Format("2006-01-02"),
-					})
-				}
-			}
-		}
-
-		resp = append(resp, cr)
+		resp = append(resp, mapCarToResponse(car))
 	}
 
 	c.JSON(http.StatusOK, resp)
 }
 
+// =========================
+// GET /cars/:id
+// =========================
 func (cc *CarController) GetCarByID(c *gin.Context) {
 	id := c.Param("id")
 	var car entity.Car
@@ -88,7 +56,8 @@ func (cc *CarController) GetCarByID(c *gin.Context) {
 		Preload("Pictures").
 		Preload("Province").
 		Preload("Manager").
-		Preload("SaleList").
+		Preload("SaleList.Employee"). // Preload Employee
+		Preload("RentList").
 		Preload("RentList.RentAbleDates.DateforRent").
 		First(&car, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -99,27 +68,87 @@ func (cc *CarController) GetCarByID(c *gin.Context) {
 		return
 	}
 
-	cr := CarResponse{Car: car}
+	resp := mapCarToResponse(car)
+	c.JSON(http.StatusOK, resp)
+}
 
+// =========================
+// helper แปลง Car → CarResponse
+// =========================
+func mapCarToResponse(car entity.Car) entity.CarResponse {
 	// SaleList
+	saleList := make([]entity.SaleEntry, 0)
 	for _, s := range car.SaleList {
-		cr.SaleList = append(cr.SaleList, struct {
-			SalePrice float64 `json:"sale_price"`
-		}{SalePrice: s.SalePrice})
+		employeeName := ""
+		employeePhone := ""
+		employeeID := uint(0)
+
+		if s.Employee != nil {
+			employeeName = s.Employee.FirstName + " " + s.Employee.LastName
+			employeePhone = s.Employee.Phone
+			employeeID = s.Employee.EmployeeID
+		}
+
+		saleList = append(saleList, entity.SaleEntry{
+			ID:            s.ID,
+			Status:        s.Status,
+			Description:   s.Description,
+			SalePrice:     s.SalePrice,
+			EmployeeID:    employeeID,
+			EmployeeName:  employeeName,
+			EmployeePhone: employeePhone,
+		})
 	}
 
 	// RentList
+	rentList := make([]entity.RentPeriod, 0)
 	for _, r := range car.RentList {
 		for _, rd := range r.RentAbleDates {
 			if rd.DateforRent != nil {
-				cr.RentList = append(cr.RentList, RentPeriod{
+				rentList = append(rentList, entity.RentPeriod{
+					ID:            rd.DateforRent.ID,
 					RentPrice:     rd.DateforRent.RentPrice,
 					RentStartDate: rd.DateforRent.OpenDate.Format("2006-01-02"),
 					RentEndDate:   rd.DateforRent.CloseDate.Format("2006-01-02"),
+					Status:        rd.DateforRent.Status,
+					Description:   rd.DateforRent.Description,
 				})
 			}
 		}
 	}
 
-	c.JSON(http.StatusOK, cr)
+	// Detail
+	detail := entity.DetailFilter{
+		Brand:    *car.Detail.Brand,
+		Model:    *car.Detail.CarModel,
+		SubModel: *car.Detail.SubModel,
+	}
+
+	// Pictures
+	pictures := make([]entity.CarPicture, len(car.Pictures))
+	copy(pictures, car.Pictures)
+
+	var manager *entity.ManagerInfo
+	if car.Manager != nil {
+		manager = &entity.ManagerInfo{
+			ID:   car.Manager.ID,
+			Name: car.Manager.FirstName + " " + car.Manager.LastName,
+		}
+	}
+
+	return entity.CarResponse{
+		ID:              car.ID,
+		CarName:         car.CarName,
+		YearManufacture: car.YearManufacture,
+		Color:           car.Color,
+		PurchasePrice:   car.PurchasePrice,
+		PurchaseDate:    car.PurchaseDate,
+		Mileage:         car.Mileage,
+		Condition:       car.Condition,
+		SaleList:        saleList,
+		RentList:        rentList,
+		Pictures:        pictures,
+		Detail:          detail,
+		Manager:         manager, // ✅ Manager ของรถ
+	}
 }
