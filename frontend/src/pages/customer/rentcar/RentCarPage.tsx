@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { Typography } from 'antd';
 import type { CarInfo, CarType, FilterValues, SortOption } from "../../../interface/Car";
 import { fetchCars } from "../../../services/carService";
 import CarCard from "../../../components/CarCard";
-import Filter from "../../../components/Filter";
+import Filter from "../../../components/BuyRentFillter";
 
 const RentCarPage: React.FC = () => {
   const [cars, setCars] = useState<CarInfo[]>([]);
   const [filteredCars, setFilteredCars] = useState<CarInfo[]>([]);
+
+  const { Title } = Typography;
 
   useEffect(() => {
     const loadCars = async () => {
@@ -42,14 +45,42 @@ const RentCarPage: React.FC = () => {
   const handleClear = () => setFilteredCars(cars);
 
   return (
-    <div style={{ display: "flex", marginTop: 60 }}>
-      <Filter cars={cars} onApply={handleApply} onClear={handleClear} />
-      <div style={{ marginLeft: 300, padding: 20, display: "flex", flexWrap: "wrap", gap: 20 }}>
-        {filteredCars
-          .filter(car => car.sale_list?.length) // ✅ โชว์เฉพาะรถที่ขาย
-          .map(car => (
-            <CarCard key={car.ID} car={car} type="rentView" />
-          ))}
+    // <div style={{ display: "flex", marginTop: 60 }}>
+    //   <Filter cars={cars} onApply={handleApply} onClear={handleClear} />
+    //   <div style={{ marginLeft: 300, padding: 20, display: "flex", flexWrap: "wrap", gap: 20 }}>
+    //     {filteredCars
+    //       .filter(car => car.sale_list?.length) // ✅ โชว์เฉพาะรถที่ขาย
+    //       .map(car => (
+    //         <CarCard key={car.ID} car={car} type="rentView" />
+    //       ))}
+    //   </div>
+    // </div>
+
+    <div style={{ padding: 20 }}>
+      <Title
+        level={2}
+        style={{
+          color: "#fff",
+          margin: "0 0 20px 0",
+          display: "inline-block",
+          borderBottom: "3px solid gold", // เส้นขีดใต้ตัวหนังสือ
+          paddingBottom: "6px",
+        }}
+      >
+        เลือกรถยนต์ที่คุณต้องการเช่า
+      </Title>
+      <div style={{ display: "flex", gap: 30, marginTop: 20 }}>
+        {/* Filter อยู่ด้านซ้าย */}
+        <Filter cars={cars} onApply={handleApply} onClear={handleClear} />
+
+        {/* Car Cards อยู่ด้านขวา */}
+        <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: 20 }}>
+          {filteredCars
+            .filter(car => car.sale_list?.length)
+            .map(car => (
+              <CarCard key={car.ID} car={car} type="rentView" />
+            ))}
+        </div>
       </div>
     </div>
   );
