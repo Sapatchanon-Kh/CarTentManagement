@@ -2,6 +2,9 @@ import type { Employee } from "../types/employee";
 
 const API = "http://localhost:8080";
 
+
+
+
 // ✅ ตัวช่วยสร้าง header ที่ปลอดภัย
 function authHeaders(token?: string): HeadersInit {
   const headers: Record<string, string> = {

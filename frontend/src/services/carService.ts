@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { CarInfo } from '../interface/Car';
+import type { Employee } from '../interface/Employee';
 
 const API_URL = 'http://localhost:8080/cars';
 const IMAGE_BASE_URL = 'http://localhost:8080/images/cars';
@@ -52,5 +53,6 @@ const mapCar = (data: any): CarInfo => ({
     rent_start_date: r.rent_start_date,
     rent_end_date: r.rent_end_date,
   })) || [],
-  //555555
+// ✅ เพิ่มการ map ข้อมูล Employee
+  employee: data.employee ? { ID: data.employee.ID, firstName: data.employee.first_name, lastName: data.employee.last_name } as Employee : undefined,
 });

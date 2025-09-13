@@ -20,7 +20,7 @@ type Employee struct {
 
 	LeaveRequests  []LeaveRequest   `json:"leaves" gorm:"-"`
 	PickupDelivery []PickupDelivery `gorm:"foreignKey:EmployeeID"`
-	Car            []Car            `gorm:"foreignKey:EmployeeID"`
+	
 	SaleList       []SaleList       `gorm:"foreignKey:EmployeeID"`
 	SalesContract  []SalesContract  `gorm:"foreignKey:EmployeeID"`
 }

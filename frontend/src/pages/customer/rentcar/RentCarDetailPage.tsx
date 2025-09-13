@@ -18,8 +18,10 @@ import dayjs from "dayjs";
 import { useAuth } from "../../../hooks/useAuth";
 import CusRentDateRange from "../../../components/CusRentDateRange";
 
-import type{ CarInfo } from "../../../interface/Car";
+import type { CarInfo } from "../../../interface/Car";
 import { fetchCarById } from "../../../services/carService";
+// ✅ 1. Import service สำหรับการสร้างสัญญาเช่าของลูกค้า
+import customerRentService from "../../../services/customerRentService";
 
 const { Title } = Typography;
 
@@ -65,41 +67,80 @@ const RentCarDetailPage: React.FC = () => {
     else document.body.style.overflow = "";
     return () => { document.body.style.overflow = ""; };
   }, [rentModalVisible]);
+  
+  const rentPricePerDay = car?.rent_list?.[0]?.rent_price || car?.purchasePrice || 0;
 
   if (loading) return <div>กำลังโหลดข้อมูลรถ...</div>;
   if (!car) return <div>ไม่พบรถที่ต้องการ</div>;
 
   const handleFormSubmit = (values: any) => {
-    if (!values.rentRange || values.rentRange.length === 0) {
+    if (!values.rentRange || values.rentRange.length < 2) {
       if (!user) {
         navigate("/login", { state: { from: location.pathname, openModal: "rent" } });
+        return;
       }
       message.error("โปรดเลือกช่วงเวลาที่ต้องการเช่า");
       return;
     }
+    // `CusRentDateRange` ส่งค่ากลับมาเป็น array ของ dayjs object อยู่แล้ว
     setSelectedRentRange(values.rentRange);
     setRentModalVisible(true);
   };
 
-  const handleConfirmRent = () => {
-    setRentModalVisible(false);
-    message.success("ยืนยันการสั่งเช่าแล้ว กำลังพาไปหน้าชำระเงิน...");
-    navigate("/payment");
+  // ✅ 2. แก้ไขฟังก์ชันนี้ให้สมบูรณ์
+  const handleConfirmRent = async () => {
+    if (!car || selectedRentRange.length !== 2 || !user) {
+      message.error("ข้อมูลไม่ครบถ้วนหรือไม่พบผู้ใช้งาน");
+      return;
+    }
+
+    const startDate = selectedRentRange[0];
+    const endDate = selectedRentRange[1];
+    const days = endDate.diff(startDate, "day") + 1;
+    const totalPrice = days * rentPricePerDay;
+
+    const payload = {
+      car_id: car.ID,
+      customer_id: user.ID,
+      start_date: startDate.format("YYYY-MM-DD"),
+      end_date: endDate.format("YYYY-MM-DD"),
+      total_price: totalPrice,
+    };
+
+    try {
+      setLoading(true);
+      await customerRentService.createRentContract(payload);
+      setRentModalVisible(false);
+      message.success("ทำสัญญาเช่าสำเร็จแล้ว! กำลังนำทาง...");
+      // อาจจะนำทางไปหน้า profile หรือหน้าแสดงสัญญา
+      navigate("/payment"); 
+    } catch (error) {
+      console.error("Failed to create rent contract:", error);
+      message.error("เกิดข้อผิดพลาดในการสร้างสัญญาเช่า");
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   const mainCar = car.pictures?.[0]?.path || "";
   const thumbnails = car.pictures?.slice(1) || [];
-
-  const rentPricePerDay = car.rent_list?.[0]?.rent_price || car.purchasePrice;
 
   return (
     <div className={`page-container ${rentModalVisible ? "blurred" : ""}`} 
          style={{ backgroundColor: "#000", minHeight: "100vh", padding: "20px", transition: "filter 0.3s ease" }}>
       <Row gutter={16}>
         <Col xs={24} md={16}>
-          <Card bordered={false} style={{ backgroundColor: "#1a1a1a", borderRadius: 12, border: "2px solid gold" }}
-                onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 215, 0, 0.4)"}
-                onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
+          <Card 
+            bordered={false} 
+            style={{ 
+              backgroundColor: "#1a1a1a",
+              borderRadius: 12,
+              border: "2px solid gold",
+              transition: "box-shadow 0.3s ease-in-out",
+            }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 215, 0, 0.4)"}
+              onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
             <Image src={mainCar} alt="car-main" style={{ borderRadius: "12px", marginBottom: "10px" }} />
             <Row gutter={8}>
               {thumbnails.map((thumb, i) => (
@@ -112,9 +153,18 @@ const RentCarDetailPage: React.FC = () => {
         </Col>
 
         <Col xs={24} md={8}>
-          <Card bordered={false} style={{ backgroundColor: "#1a1a1a", color: "white", borderRadius: 12, border: "2px solid gold" }}
-                onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 215, 0, 0.4)"}
-                onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
+          <Card 
+            bordered={false} 
+            style={{ 
+              backgroundColor: "#1a1a1a",
+              color: "white",
+              borderRadius: 12,
+              border: "2px solid gold",
+              transition: "box-shadow 0.3s ease-in-out",
+            }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 215, 0, 0.4)"}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
+
             <Title level={3} style={{ color: "gold" }}>{car.brand?.brandName} {car.model?.modelName} ปี {car.yearManufacture}</Title>
             <Title level={2} style={{ color: "white", marginTop: "-10px" }}>฿ {rentPricePerDay.toLocaleString()}/วัน</Title>
 
@@ -135,37 +185,108 @@ const RentCarDetailPage: React.FC = () => {
             </div>
 
             <Divider style={{ borderColor: "rgba(255, 215, 0, 0.3)" }} />
-            <Form form={form} layout="vertical" onFinish={handleFormSubmit}>
-              <Form.Item name="rentRange" label={<span style={{ color: "white", fontWeight: "bold" }}>เลือกช่วงเช่า</span>}
-                         rules={[{ required: true, message: "โปรดเลือกช่วงเวลาที่ต้องการเช่า" }]}>
+            <Form 
+              form={form} 
+              layout="vertical" 
+              onFinish={handleFormSubmit}
+            >
+              <Form.Item 
+                name="rentRange" 
+                label={<span style={{ color: "white", fontWeight: "bold" }}>เลือกช่วงเช่า</span>}
+                rules={[{ required: true, message: "โปรดเลือกช่วงเวลาที่ต้องการเช่า" }]}
+                >
                 <CusRentDateRange />
               </Form.Item>
-              <Button icon={<PushpinOutlined />} block htmlType="submit"
-                      style={{ backgroundColor: "gold", color: "black", fontWeight: "bold", border: "2px solid gold", borderRadius: "10px" }}
-                      onMouseEnter={e => { e.currentTarget.style.backgroundColor = "black"; e.currentTarget.style.color = "gold"; }}
-                      onMouseLeave={e => { e.currentTarget.style.backgroundColor = "gold"; e.currentTarget.style.color = "black"; }}>
+               <Button
+                icon={<PushpinOutlined />}
+                block
+                htmlType="submit"
+                style={{
+                  backgroundColor: "gold",
+                  color: "black",
+                  fontWeight: "bold",
+                  border: "2px solid gold",
+                  borderRadius: "10px",
+                  boxShadow: "0 2px 8px rgba(255, 215, 0, 0.4)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "black";
+                  e.currentTarget.style.color = "gold";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "gold";
+                  e.currentTarget.style.color = "black";
+                }}
+                onClick={handleFormSubmit}
+              >
                 สั่งเช่า
               </Button>
             </Form>
 
-            <Modal title={<span style={{ color: '#f1d430ff' }}>ยืนยันคำสั่งเช่า</span>}
-                   open={rentModalVisible}
-                   onCancel={() => setRentModalVisible(false)}
-                   width={600}
-                   centered
-                   maskClosable={false}
-                   footer={[
-                     <Button key="back" onClick={() => setRentModalVisible(false)}
-                             style={{ backgroundColor: "gold", color: "black", fontWeight: "bold", border: "2px solid gold", borderRadius: "10px" }}>
-                       ยกเลิก
-                     </Button>,
-                     <Button key="submit" onClick={handleConfirmRent}
-                             style={{ backgroundColor: "gold", color: "black", fontWeight: "bold", border: "2px solid gold", borderRadius: "10px" }}>
-                       ยืนยัน
-                     </Button>,
-                   ]}>
-              <div style={{ color: 'black' }}>
-                <p>ชื่อ-นามสกุล : </p>
+              <Modal
+                title={<span style={{ color: '#f1d430ff' }}>ยืนยันคำสั่งเช่า</span>}
+                open={rentModalVisible}
+                onCancel={() => setRentModalVisible(false)}
+                getContainer={() => document.body}
+                maskClosable={false}
+                width={600}
+                centered
+                styles={{ 
+                    body: { backgroundColor: '#000000' },
+                    header: { backgroundColor: '#000000', borderBottom: '1px solid #000000' },
+                    footer: { backgroundColor: '#000000', borderTop: '1px solid #000000' },
+                    content: { backgroundColor: '#000000', border: '2px solid #f1d430ff', borderRadius: '8px' }
+                }}
+                footer={[
+                    <Button 
+                        key="back" 
+                        onClick={() => setRentModalVisible(false)}
+                        style={{
+                          backgroundColor: "gold",
+                          color: "black",
+                          fontWeight: "bold",
+                          border: "2px solid gold",
+                          borderRadius: "10px",
+                          boxShadow: "0 2px 8px rgba(255, 215, 0, 0.4)",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "black";
+                          e.currentTarget.style.color = "gold";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "gold";
+                          e.currentTarget.style.color = "black";
+                        }}
+                    >
+                        ยกเลิก
+                    </Button>,
+                    <Button 
+                        key="submit" 
+                        onClick={handleConfirmRent} // ✅ 3. ปุ่มยืนยันเรียกใช้ฟังก์ชันที่แก้ไขแล้ว
+                        style={{
+                          backgroundColor: "gold",
+                          color: "black",
+                          fontWeight: "bold",
+                          border: "2px solid gold",
+                          borderRadius: "10px",
+                          boxShadow: "0 2px 8px rgba(255, 215, 0, 0.4)",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "black";
+                          e.currentTarget.style.color = "gold";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "gold";
+                          e.currentTarget.style.color = "black";
+                        }}
+                    >
+                        ยืนยัน
+                    </Button>,
+                ]}
+              >
+
+              <div style={{ color: 'white' }}>
+                <p>ชื่อ-นามสกุล : {user?.first_name} {user?.last_name}</p>
                 <p>รถยนต์ : {car.brand?.brandName} {car.model?.modelName} ปี {car.yearManufacture}</p>
                 {selectedRentRange.length === 2 && (() => {
                   const startDate = selectedRentRange[0];

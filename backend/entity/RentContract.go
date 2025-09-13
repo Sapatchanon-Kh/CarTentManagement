@@ -16,9 +16,7 @@ type RentContract struct {
 	RentListID uint      `json:"rent_list_id"`
 	RentList   *RentList `gorm:"foreignKey:RentListID" json:"rent_list"`
 
-	EmployeeID uint      `json:"employee_id"`
-	Employee   *Employee `gorm:"foreignKey:EmployeeID" json:"employee"`
-
+	
 	CustomerID uint      `json:"customer_id"`
 	Customer   *Customer `gorm:"foreignKey:CustomerID" json:"customer"`
 

@@ -40,7 +40,7 @@ func (cc *CarController) GetAllCars(c *gin.Context) {
 		Preload("Detail.SubModel").
 		Preload("Pictures").
 		Preload("Province").
-		Preload("Employee").
+		Preload("Manager").
 		Preload("SaleList").
 		Preload("RentList.RentAbleDates.DateforRent").
 		Find(&cars).Error; err != nil {
@@ -87,7 +87,7 @@ func (cc *CarController) GetCarByID(c *gin.Context) {
 		Preload("Detail.SubModel").
 		Preload("Pictures").
 		Preload("Province").
-		Preload("Employee").
+		Preload("Manager").
 		Preload("SaleList").
 		Preload("RentList.RentAbleDates.DateforRent").
 		First(&car, id).Error; err != nil {
