@@ -60,7 +60,6 @@ func (rc *RentListController) GetRentListsByCar(c *gin.Context) {
 		SaleList:        nil,
 		RentList:        rentPeriods,
 		Pictures:        car.Pictures,
-		
 	}
 
 	c.JSON(http.StatusOK, response)

@@ -14,5 +14,5 @@ type DateforRent struct {
 	RentPrice     float64         `json:"rent_price"`
 	Status        string          `gorm:"default:'available'" json:"period_status"`
 	BookedBy      uint            `json:"booked_by"`
-	Description   string          `json: description`
+	Description   string          `json: "description"`
 }

@@ -1,12 +1,17 @@
 // src/service/carService.ts
+import axios from 'axios';
+import type { CarInfo, CarPicture, SaleInfo, RentInfo, Brand, CarModel, SubModel,Employee,CarType} from '../interface/Car';
 
-import type { CarInfo, CarPicture, SaleInfo, RentInfo, Brand, CarModel, SubModel} from '../interface/Car';
-import type { Employee } from '../interface/Employee';
-const API_URL = "/cars"; // ใช้ proxy ของ Vite
+const API_URL = "http://localhost:8080/cars";
+
+export const getCarById = async (id: number) => {
+  const res = await axios.get(`${API_URL}/${id}`);
+  return res.data;
+};
 
 // ดึงรถทั้งหมด
 export async function getAllCars(): Promise<CarInfo[]> {
-  const res = await fetch(`${API_URL}/`);
+  const res = await fetch(`${API_URL}`);
   if (!res.ok) throw new Error(`Failed to fetch cars: ${res.statusText}`);
   const data = await res.json();
   return data.map(mapBackendCarToFrontend);
@@ -21,8 +26,9 @@ export async function getCarByID(id: number): Promise<CarInfo> {
 }
 
 // map JSON backend → CarInfo
+// map JSON backend → CarInfo
 export function mapBackendCarToFrontend(data: any): CarInfo {
-  // pictures
+  // Map pictures
   const pictures: CarPicture[] = (data.pictures || []).map((p: any) => ({
     ID: p.ID,
     path: p.path,
@@ -30,78 +36,73 @@ export function mapBackendCarToFrontend(data: any): CarInfo {
     car_id: p.car_id,
   }));
 
-  // sale_list
-  const sale_list: SaleInfo[] = (data.sale_list || []).map((s: any) => ({
+  // Map sale_list
+  const saleList: SaleInfo[] = (data.sale_list || []).map((s: any) => ({
     ID: s.id,
     car_id: data.id,
     sale_price: s.sale_price,
-    description: s.description ?? '',
-    manager_id: s.managerID ?? 0,
+    manager_id: s.manager_id ?? 0, // เผื่อ backend ยังไม่ได้ส่ง
+    employee_id: s.employee_id,
+    description: s.description,
+    status: s.sale_status,
+    car: undefined, // ป้องกัน loop
   }));
 
-  // rent_list
-  const rent_list: RentInfo[] = (data.rent_list || []).map((r: any) => ({
+  // Map rent_list
+  const rentList: RentInfo[] = (data.rent_list || []).map((r: any) => ({
     rent_price: r.rent_price,
     rent_start_date: r.rent_start_date,
     rent_end_date: r.rent_end_date,
   }));
 
-  // brand / model / submodel
+  // Map employee (เลือกจาก sale_list อันแรกก่อน)
+  let employee: Employee | undefined = undefined;
+  if (data.sale_list && data.sale_list.length > 0) {
+    employee = {
+      name: data.sale_list[0].employee_name,
+      phone: data.sale_list[0].employee_phone,
+    };
+  }
+
+  // Map brand, model, submodel
   const brand: Brand | undefined = data.cardetail?.brand
     ? {
-      ID: data.cardetail.brand.ID,
-      brandName: data.cardetail.brand.brand_name,
-    }
+        ID: data.cardetail.brand.ID,
+        brandName: data.cardetail.brand.brand_name,
+      }
     : undefined;
 
   const model: CarModel | undefined = data.cardetail?.model
     ? {
-      ID: data.cardetail.model.ID,
-      modelName: data.cardetail.model.ModelName,
-      brandID: data.cardetail.model.brandId,
-    }
+        ID: data.cardetail.model.ID,
+        modelName: data.cardetail.model.ModelName,
+        brandID: data.cardetail.model.brandId,
+      }
     : undefined;
 
   const submodel: SubModel | undefined = data.cardetail?.submodel
     ? {
-      ID: data.cardetail.submodel.ID,
-      submodelName: data.cardetail.submodel.SubModelName,
-      carModelID: data.cardetail.submodel.CarModelID,
-    }
+        ID: data.cardetail.submodel.ID,
+        submodelName: data.cardetail.submodel.SubModelName,
+        carModelID: data.cardetail.submodel.CarModelID,
+      }
     : undefined;
-
-  // type
-  let type: 'sale' | 'rent' | 'noUse' = 'noUse';
-  if ((sale_list?.length ?? 0) > 0) type = 'sale';
-  else if ((rent_list?.length ?? 0) > 0) type = 'rent';
-
-  // employee (เอาจาก SaleList ตัวแรก ถ้ามี)
-  let employee: Employee | undefined;
-  if (data.sale_list?.length) {
-    const first = data.sale_list[0];
-    employee = {
-      name: first.employee_name,
-      phone: first.employee_phone,
-    };
-  }
 
   return {
     ID: data.id,
     carName: data.car_name,
     yearManufacture: data.year_manufacture,
     purchasePrice: data.purchase_price,
-    startUseDate: data.purchase_date ?? '',
+    startUseDate: data.purchase_date,
     color: data.color,
-    mileage: data.mileage ?? 0,
-    condition: data.condition ?? '',
-    type,
-    sale_list,
-    rent_list,
+    mileage: data.mileage,
+    condition: data.condition,
     pictures,
+    sale_list: saleList,
+    rent_list: rentList,
     brand,
     model,
     submodel,
-    province: undefined,
     employee,
   };
 }

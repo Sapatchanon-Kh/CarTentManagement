@@ -16,7 +16,9 @@ func NewCarController(db *gorm.DB) *CarController {
 	return &CarController{DB: db}
 }
 
+// =========================
 // GET /cars
+// =========================
 func (cc *CarController) GetAllCars(c *gin.Context) {
 	var cars []entity.Car
 	if err := cc.DB.Preload("Detail.Brand").
@@ -24,9 +26,8 @@ func (cc *CarController) GetAllCars(c *gin.Context) {
 		Preload("Detail.SubModel").
 		Preload("Pictures").
 		Preload("Province").
-		Preload("Employee").
-		Preload("SaleList.Employee").
-		Preload("SaleList.Manager").
+		Preload("Manager").
+		Preload("SaleList.Employee"). // Preload Employee
 		Preload("RentList").
 		Preload("RentList.RentAbleDates.DateforRent").
 		Find(&cars).Error; err != nil {
@@ -36,13 +37,15 @@ func (cc *CarController) GetAllCars(c *gin.Context) {
 
 	resp := make([]entity.CarResponse, 0)
 	for _, car := range cars {
-		resp = append(resp, mapCarToResponse(car)) // เอา ... ออก
+		resp = append(resp, mapCarToResponse(car))
 	}
 
 	c.JSON(http.StatusOK, resp)
 }
 
+// =========================
 // GET /cars/:id
+// =========================
 func (cc *CarController) GetCarByID(c *gin.Context) {
 	id := c.Param("id")
 	var car entity.Car
@@ -52,9 +55,8 @@ func (cc *CarController) GetCarByID(c *gin.Context) {
 		Preload("Detail.SubModel").
 		Preload("Pictures").
 		Preload("Province").
-		Preload("Employee").
-		Preload("SaleList.Employee").
-		Preload("SaleList.Manager").
+		Preload("Manager").
+		Preload("SaleList.Employee"). // Preload Employee
 		Preload("RentList").
 		Preload("RentList.RentAbleDates.DateforRent").
 		First(&car, id).Error; err != nil {
@@ -70,16 +72,21 @@ func (cc *CarController) GetCarByID(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// helper แปลง Car เป็น CarResponse
+// =========================
+// helper แปลง Car → CarResponse
+// =========================
 func mapCarToResponse(car entity.Car) entity.CarResponse {
 	// SaleList
 	saleList := make([]entity.SaleEntry, 0)
 	for _, s := range car.SaleList {
 		employeeName := ""
 		employeePhone := ""
+		employeeID := uint(0)
+
 		if s.Employee != nil {
 			employeeName = s.Employee.FirstName + " " + s.Employee.LastName
 			employeePhone = s.Employee.Phone
+			employeeID = s.Employee.EmployeeID
 		}
 
 		saleList = append(saleList, entity.SaleEntry{
@@ -87,6 +94,7 @@ func mapCarToResponse(car entity.Car) entity.CarResponse {
 			Status:        s.Status,
 			Description:   s.Description,
 			SalePrice:     s.SalePrice,
+			EmployeeID:    employeeID,
 			EmployeeName:  employeeName,
 			EmployeePhone: employeePhone,
 		})
@@ -120,6 +128,14 @@ func mapCarToResponse(car entity.Car) entity.CarResponse {
 	pictures := make([]entity.CarPicture, len(car.Pictures))
 	copy(pictures, car.Pictures)
 
+	var manager *entity.ManagerInfo
+	if car.Manager != nil {
+		manager = &entity.ManagerInfo{
+			ID:   car.Manager.ID,
+			Name: car.Manager.FirstName + " " + car.Manager.LastName,
+		}
+	}
+
 	return entity.CarResponse{
 		ID:              car.ID,
 		CarName:         car.CarName,
@@ -133,5 +149,6 @@ func mapCarToResponse(car entity.Car) entity.CarResponse {
 		RentList:        rentList,
 		Pictures:        pictures,
 		Detail:          detail,
+		Manager:         manager, // ✅ Manager ของรถ
 	}
 }

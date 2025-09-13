@@ -14,10 +14,10 @@ type SaleList struct {
 	Status string `json:"status"`
 
 	ManagerID *uint    `json:"managerID"`
-	Manager   *Manager `gorm:"foreignKey:ManagerID;references:ID" json:"manager"`
+	Manager   *Manager `gorm:"foreignKey:ManagerID" json:"manager"`
 
 	EmployeeID *uint     `json:"employeeID"` // foreign key -> Employee
-	Employee   *Employee `gorm:"foreignKey:EmployeeID;references:ID" json:"employee"`
+	Employee   *Employee `gorm:"foreignKey:EmployeeID;references:EmployeeID" json:"employee"`
 
 	SalesContract []SalesContract `gorm:"foreignKey:SaleListID" json:"sales_contract"`
 }

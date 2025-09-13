@@ -57,7 +57,6 @@ func main() {
 	salesContractController := controllers.NewSalesContractController(configs.DB)
 	leaveController := controllers.NewLeaveController(configs.DB) // ✅ เพิ่ม LeaveController
 	rentListController := controllers.NewRentListController(configs.DB)
-	saleListController := controllers.NewSaleListController(configs.DB)
 	rentContractController := controllers.NewRentContractController(configs.DB)
 	saleController := controllers.NewSaleController(configs.DB)
 	// --- Routes ---
@@ -113,11 +112,7 @@ func main() {
 		employeeProtectedRoutes.GET("/me", employeeController.GetCurrentEmployee)
 		employeeProtectedRoutes.PUT("/me", employeeController.UpdateCurrentEmployee)
 	}
-	// SaleList Routes
-	saleListRoutes := r.Group("/salelists") // ✅ เพิ่ม Route ใหม่
-	{
-		saleListRoutes.GET("/car/:carId/price/:price", saleListController.GetSaleListByCarAndPrice) // ✅ เพิ่ม Route สำหรับการค้นหา
-	}
+	
 
 	// RentContract Routes
 	rentContractRoutes := r.Group("/rent-contracts")
