@@ -1,14 +1,11 @@
-import React from 'react'
-import SaleForm from '../../../components/SaleForm'
+import React from "react";
+import { useParams } from "react-router-dom";
+import SaleForm from "../../../components/SaleForm";
 
-function CreateSellCarPage() {
-  return (
-    <div>
-    <div style={{marginTop:100}}></div> 
-      <SaleForm />
-      <div style={{marginTop:320}}></div>
-    </div>
-  )
-}
+const CreateSellCarPage: React.FC = () => {
+  const { carId } = useParams<{ carId: string }>();
 
-export default CreateSellCarPage
+  return <SaleForm carId={Number(carId)} mode="create" />;
+};
+
+export default CreateSellCarPage;

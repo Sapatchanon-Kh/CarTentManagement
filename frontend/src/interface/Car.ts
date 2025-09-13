@@ -11,7 +11,8 @@ export interface SaleInfo {
   ID: number;
   car_id: number;
   sale_price: number;
-  employee_id: number;
+  manager_id: number;   // เพิ่ม
+  employee_id: number;  // เพิ่ม
   description: string;
   status: string;
   car?: CarInfo;   // 👈 เพิ่มตรงนี้

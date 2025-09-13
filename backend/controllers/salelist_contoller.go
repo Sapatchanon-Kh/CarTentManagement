@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"net/http"
-	"strconv"
+
 	"github.com/PanuAutawo/CarTentManagement/backend/entity"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -55,46 +55,73 @@ func (sc *SaleController) GetSaleByID(c *gin.Context) {
 
 // POST /sale
 // สร้างรายการขายใหม่
+// POST /sale
 func (sc *SaleController) CreateSale(c *gin.Context) {
-    carIDStr := c.Param("car_id")
-    var carID uint
-    if id, err := strconv.ParseUint(carIDStr, 10, 32); err == nil {
-        carID = uint(id)
-    } else {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid car_id"})
-        return
-    }
+	var input struct {
+		CarID       uint    `json:"car_id" binding:"required"`
+		SalePrice   float64 `json:"sale_price" binding:"required"`
+		ManagerID   uint    `json:"manager_id" binding:"required"`
+		EmployeeID  uint    `json:"employee_id" binding:"required"`
+		Description string  `json:"description"`
+	}
 
-    var input struct {
-        SalePrice   float64 `json:"sale_price" binding:"required"`
-        ManagerID   uint    `json:"manager_id" binding:"required"`
-        EmployeeID  uint    `json:"employee_id" binding:"required"`
-        Description string  `json:"description"`
-    }
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    if err := c.ShouldBindJSON(&input); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	sale := entity.SaleList{
+		CarID:       input.CarID,
+		SalePrice:   input.SalePrice,
+		Status:      "available",
+		ManagerID:   &input.ManagerID,
+		EmployeeID:  &input.EmployeeID,
+		Description: input.Description,
+	}
 
-    sale := entity.SaleList{
-        CarID:       carID,
-        SalePrice:   input.SalePrice,
-        Status:      "available",
-        ManagerID:   &input.ManagerID,
-        EmployeeID:  &input.EmployeeID,
-        Description: input.Description,
-    }
+	if err := sc.DB.Create(&sale).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
-    if err := sc.DB.Create(&sale).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
+	sc.DB.Preload("Car").Preload("Employee").Preload("Manager").First(&sale, sale.ID)
 
-    sc.DB.Preload("Car").
-        Preload("Employee").
-        Preload("Manager").
-        First(&sale, sale.ID)
+	c.JSON(http.StatusOK, sale)
+}
 
-    c.JSON(http.StatusOK, sale)
+// PUT /sale/:id
+func (sc *SaleController) UpdateSale(c *gin.Context) {
+	id := c.Param("id")
+
+	var input struct {
+		SalePrice   float64 `json:"sale_price" binding:"required"`
+		ManagerID   uint    `json:"manager_id" binding:"required"`
+		EmployeeID  uint    `json:"employee_id" binding:"required"`
+		Description string  `json:"description"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var sale entity.SaleList
+	if err := sc.DB.First(&sale, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Sale not found"})
+		return
+	}
+
+	sale.SalePrice = input.SalePrice
+	sale.ManagerID = &input.ManagerID
+	sale.EmployeeID = &input.EmployeeID
+	sale.Description = input.Description
+
+	if err := sc.DB.Save(&sale).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	sc.DB.Preload("Car").Preload("Employee").Preload("Manager").First(&sale, sale.ID)
+
+	c.JSON(http.StatusOK, sale)
 }

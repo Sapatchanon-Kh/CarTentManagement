@@ -14,10 +14,11 @@ export const getAllCarsWithSale = async (): Promise<CarInfo[]> => {
 export const createSale = async (sale: {
   car_id: number;
   sale_price: number;
-  employee_id: number;  // 👈 เปลี่ยนเป็น employee_id ให้ตรง backend
+  manager_id: number;   // ✅ ต้องมีด้วย
+  employee_id: number;
   description: string;
 }): Promise<SaleInfo> => {
-  const res = await axios.post(`${API_URL}/`, sale);
+  const res = await axios.post(API_URL, sale); 
   return res.data;
 };
 
@@ -32,7 +33,8 @@ export const updateSale = async (
   id: number,
   data: {
     sale_price: number;
-    employee_id: number;   // 👈 เปลี่ยนเป็น employee_id ให้ตรง backend
+    manager_id: number;   // ✅ ต้องมีด้วย
+    employee_id: number;
     description: string;
   }
 ): Promise<SaleInfo> => {

@@ -189,11 +189,12 @@ func main() {
 		rentListRoutes.POST("/book/:carId", rentListController.BookCar) // เพิ่ม BookCar
 	}
 	saleControllerRoutes := r.Group("/sale")
-{
-    saleControllerRoutes.GET("/cars", saleController.GetCarsWithSale)
-    saleControllerRoutes.GET("/:id", saleController.GetSaleByID)
-    saleControllerRoutes.POST("/:car_id", saleController.CreateSale) // ✅ ใช้ param
-}
+	{
+		saleControllerRoutes.GET("/cars", saleController.GetCarsWithSale) // GET /sale/cars
+		saleControllerRoutes.GET("/:id", saleController.GetSaleByID)      // GET /sale/:id
+		saleControllerRoutes.POST("", saleController.CreateSale)          // POST /sale
+		saleControllerRoutes.PUT("/:id", saleController.UpdateSale)       // PUT /sale/:id
+	}
 
 	// Start server
 	if err := r.Run(":8080"); err != nil {
