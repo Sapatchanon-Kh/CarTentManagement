@@ -39,12 +39,12 @@ func InsertMockSaleList(db *gorm.DB) {
 	rand.Seed(time.Now().UnixNano())
 
 	// จำกัดสูงสุด 20 คัน
-	limit := 40
+	limit := 15
 	if len(cars) < limit {
 		limit = len(cars)
 	}
 
-	for i := 35; i < limit; i++ {
+	for i := 10; i < limit; i++ {
 		car := cars[i]
 
 		// สุ่มราคาขายจากต้นทุน

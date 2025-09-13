@@ -106,13 +106,9 @@ const BuyCarDetailPage: React.FC = () => {
   if (!car) return <div>ไม่พบรถที่ต้องการ</div>;
 
 
-  const baseUrl = "http://localhost:8080/images/cars";
-
-  const mainCarImage = car.pictures?.[0]?.path
-    ? `${baseUrl}/${car.pictures[0].path}`
-    : "";
-
-  const thumbImages = car.pictures?.slice(1, 5).map(p => `${baseUrl}/${p.path}`) || [];
+  const baseUrl = "http://localhost:8080/images/cars/";
+const mainCar = car.pictures?.[0] ? `${baseUrl}${car.pictures[0].path}` : "";
+const thumbnails = car.pictures?.slice(1) || [];
 
   return (
     <div className={`page-container ${isAnyModalOpen ? "blurred" : ""}`}
@@ -130,13 +126,13 @@ const BuyCarDetailPage: React.FC = () => {
             onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 215, 0, 0.4)")}
             onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
           >
-            <Image src={mainCarImage} alt="car-main" style={{ borderRadius: "12px", marginBottom: "10px" }} />
+            <Image src={mainCar} alt="car-main" style={{ borderRadius: "12px", marginBottom: "10px" }} />
             <Row gutter={8}>
-              {thumbImages.map((thumb, i) => (
-                <Col span={6} key={i}>
-                  <Image src={thumb} alt={`car-${i}`} style={{ borderRadius: "8px" }} />
-                </Col>
-              ))}
+              {thumbnails.map((thumb, i) => (
+  <Col span={6} key={i}>
+    <Image src={`${baseUrl}${thumb.path}`} alt={`car-${i}`} style={{ borderRadius: "8px" }} />
+  </Col>
+))}
             </Row>
           </Card>
         </Col>

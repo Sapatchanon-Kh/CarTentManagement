@@ -124,7 +124,7 @@ const RentCarDetailPage: React.FC = () => {
 
 const baseUrl = "http://localhost:8080/images/cars/";
 const mainCar = car.pictures?.[0] ? `${baseUrl}${car.pictures[0].path}` : "";
-const thumbnails = car.pictures?.slice(1) || [];
+const thumbnails = car.pictures?.slice() || [];
 
   return (
     <div className={`page-container ${rentModalVisible ? "blurred" : ""}`}
@@ -144,10 +144,10 @@ const thumbnails = car.pictures?.slice(1) || [];
             <Image src={mainCar} alt="car-main" style={{ borderRadius: "12px", marginBottom: "10px" }} />
             <Row gutter={8}>
               {thumbnails.map((thumb, i) => (
-                <Col span={6} key={i}>
-                  <Image src={mainCar} alt="car-main" style={{ borderRadius: "12px", marginBottom: "10px" }} />
-                </Col>
-              ))}
+  <Col span={6} key={i}>
+    <Image src={`${baseUrl}${thumb.path}`} alt={`car-${i}`} style={{ borderRadius: "8px" }} />
+  </Col>
+))}
             </Row>
           </Card>
         </Col>
