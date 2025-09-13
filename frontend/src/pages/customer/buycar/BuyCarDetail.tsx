@@ -101,6 +101,73 @@ const BuyCarDetailPage: React.FC = () => {
     }
   };
 
+  // const handleConfirmLike = async () => {
+  //   if (!user || !token || !car || !id) {
+  //     message.error("ข้อมูลไม่ครบถ้วน ไม่สามารถสร้างสัญญาได้");
+  //     return;
+  //   }
+
+  //    try {
+  //   // ✅ แก้ไขการเรียก service โดยแปลงค่า price เป็น float
+  //   const price = parseFloat(car.sale_list?.[0]?.sale_price.toString() || '0');
+  //   const saleListData = await getSaleListByCarAndPrice(id, price);
+
+  //   if (!saleListData?.ID) {
+  //     message.error("ไม่พบข้อมูล Sale List ที่ถูกต้อง");
+  //     return;
+  //   }
+  //     // ✅ 2. ใช้ข้อมูลที่ค้นหาได้เพื่อสร้าง SalesContract
+  //     const contractData = {
+  //       SaleListID: saleListData.ID,
+  //       EmployeeID: saleListData.EmployeeID,
+  //       CustomerID: user.ID,
+  //     };
+
+  //     await createSalesContract(contractData, token);
+  //     setBuy(false);
+  //     setBook(false);
+  //     message.success("สร้างสัญญาซื้อขายสำเร็จ กำลังพาไปหน้าชำระเงิน...");
+  //     navigate("/payment");
+  //   } catch (error) {
+  //     console.error("Failed to create sales contract:", error);
+  //     message.error("เกิดข้อผิดพลาดในการสร้างสัญญาซื้อขาย");
+  //   }
+  // };
+
+//  const handleConfirmRent = async () => {
+//     if (!car || selectedRentRange.length !== 2 || !user) {
+//       message.error("ข้อมูลไม่ครบถ้วนหรือไม่พบผู้ใช้งาน");
+//       return;
+//     }
+
+//     const startDate = selectedRentRange[0];
+//     const endDate = selectedRentRange[1];
+//     const days = endDate.diff(startDate, "day") + 1;
+//     const totalPrice = days * rentPricePerDay;
+
+//     const payload = {
+//       car_id: car.ID,
+//       customer_id: user.ID,
+//       start_date: startDate.format("YYYY-MM-DD"),
+//       end_date: endDate.format("YYYY-MM-DD"),
+//       total_price: totalPrice,
+//     };
+
+//     try {
+//       setLoading(true);
+//       await customerRentService.createRentContract(payload);
+//       setRentModalVisible(false);
+//       message.success("ทำสัญญาเช่าสำเร็จแล้ว! กำลังนำทาง...");
+//       // อาจจะนำทางไปหน้า profile หรือหน้าแสดงสัญญา
+//       navigate("/payment"); 
+//     } catch (error) {
+//       console.error("Failed to create rent contract:", error);
+//       message.error("เกิดข้อผิดพลาดในการสร้างสัญญาเช่า");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
   if (loading) return <div>Loading...</div>;
   if (!car) return <div>ไม่พบรถที่ต้องการ</div>;
 
@@ -187,13 +254,13 @@ const BuyCarDetailPage: React.FC = () => {
                   e.currentTarget.style.backgroundColor = "gold";
                   e.currentTarget.style.color = "black";
                 }}
-                onClick={() => setBook(true)}
+                onClick={handleBuyClick}
               >
-                จอง
+                ถูกใจ
               </Button>
 
               <Modal
-                title={<span style={{ color: '#f1d430ff' }}>ยืนยันคำสั่งการจอง</span>}
+                title={<span style={{ color: '#f1d430ff' }}>ยืนยันการกดถูกใจ</span>}
                 open={book}
                 onCancel={() => setBook(false)}
                 getContainer={() => document.body}
@@ -266,9 +333,8 @@ const BuyCarDetailPage: React.FC = () => {
                 ]}
               >
                 <div style={{ color: 'white' }}>
-                  <p>ชื่อ-นามสกุล : {user?.first_name} {user?.last_name}</p>
-                  <p>รถยนต์ : {car.brand?.brandName} {car.model?.modelName} ปี {car.yearManufacture}</p>
-                  <p>ราคา : {car.sale_list?.[0]?.sale_price.toLocaleString()} บาท</p>
+                  <p> รถยนต์ที่คุณถูกใจจะแสดงในหน้า </p>
+                  <p>" ข้อมูลของฉัน "</p>
                 </div>
               </Modal>
 
