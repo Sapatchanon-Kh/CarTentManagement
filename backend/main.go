@@ -34,7 +34,7 @@ func main() {
 	// 3. Create router
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5174"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -57,8 +57,9 @@ func main() {
 	salesContractController := controllers.NewSalesContractController(configs.DB)
 	leaveController := controllers.NewLeaveController(configs.DB) // ✅ เพิ่ม LeaveController
 	rentListController := controllers.NewRentListController(configs.DB)
-	saleListController := controllers.NewSaleListController(configs.DB)
 	rentContractController := controllers.NewRentContractController(configs.DB)
+	saleController := controllers.NewSaleController(configs.DB)
+	buyCarController := controllers.NewBuyCarController(configs.DB)
 	// --- Routes ---
 
 	// Public Routes
@@ -111,11 +112,6 @@ func main() {
 	{
 		employeeProtectedRoutes.GET("/me", employeeController.GetCurrentEmployee)
 		employeeProtectedRoutes.PUT("/me", employeeController.UpdateCurrentEmployee)
-	}
-	// SaleList Routes
-	saleListRoutes := r.Group("/salelists") // ✅ เพิ่ม Route ใหม่
-	{
-		saleListRoutes.GET("/car/:carId/price/:price", saleListController.GetSaleListByCarAndPrice) // ✅ เพิ่ม Route สำหรับการค้นหา
 	}
 
 	// RentContract Routes
@@ -204,9 +200,16 @@ func main() {
 		rentListRoutes.GET("/:carId", rentListController.GetRentListsByCar)
 		rentListRoutes.PUT("", rentListController.CreateOrUpdateRentList)
 		rentListRoutes.DELETE("/date/:dateId", rentListController.DeleteRentDate)
-
+		rentListRoutes.POST("/book/:carId", rentListController.BookCar) // เพิ่ม BookCar
 	}
-
+	saleControllerRoutes := r.Group("/sale")
+	{
+		saleControllerRoutes.GET("/cars", saleController.GetCarsWithSale) // GET /sale/cars
+		saleControllerRoutes.GET("/:id", saleController.GetSaleByID)      // GET /sale/:id
+		saleControllerRoutes.POST("", saleController.CreateSale)          // POST /sale
+		saleControllerRoutes.PUT("/:id", saleController.UpdateSale)       // PUT /sale/:id
+	}
+	r.POST("/bycar/buy/:carID", buyCarController.BuyCar)
 	// Start server
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("Failed to run server:", err)

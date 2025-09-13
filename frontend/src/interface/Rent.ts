@@ -1,5 +1,4 @@
 // src/interface/Rent.ts
-
 import type { Dayjs } from 'dayjs';
 
 // src/interface/Rent.ts
@@ -41,15 +40,18 @@ export interface CarResponse {
 }
 
 export interface RentPeriod {
-  id?: number;                 // ID ของ DateforRent
-  rent_price: number;          // ราคาต่อวัน
-  rent_start_date: string;     // วันที่เริ่มเช่า (YYYY-MM-DD)
-  rent_end_date: string;       // วันที่สิ้นสุดเช่า (YYYY-MM-DD)
-  temp?: boolean;              // ช่วงชั่วคราวใน frontend
+  id?: number;
+  rent_price: number;
+  rent_start_date: string;
+  rent_end_date: string;
+  temp?: boolean;
+  status?: string;
 }
 
 export interface RentPeriodWithRange extends RentPeriod {
-  range: [Dayjs | null, Dayjs | null]; // สำหรับ RangePicker
+  range?: [Dayjs | null, Dayjs | null]; // สำหรับ RangePicker
+  status?: 'available' | 'booked';
+  temp?: boolean;
 }
 
 export interface SaleEntry {

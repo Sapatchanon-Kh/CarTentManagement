@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Typography } from 'antd';
 import type { CarInfo, CarType, FilterValues, SortOption } from "../../../interface/Car";
-import { fetchCars } from "../../../services/carService";
+import { Typography } from 'antd';
+import { getAllCars } from "../../../services/carService";
 import CarCard from "../../../components/CarCard";
 import Filter from "../../../components/BuyRentFillter";
 
 const RentCarPage: React.FC = () => {
   const [cars, setCars] = useState<CarInfo[]>([]);
   const [filteredCars, setFilteredCars] = useState<CarInfo[]>([]);
-
   const { Title } = Typography;
 
   useEffect(() => {
     const loadCars = async () => {
-      const data = await fetchCars();
+      const data = await getAllCars();
       setCars(data);
       setFilteredCars(data);
     };
@@ -69,12 +68,12 @@ const RentCarPage: React.FC = () => {
       >
         เลือกรถยนต์ที่คุณต้องการเช่า
       </Title>
-      <div style={{ display: "flex", gap: 30, marginTop: 20 }}>
+      <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
         {/* Filter อยู่ด้านซ้าย */}
         <Filter cars={cars} onApply={handleApply} onClear={handleClear} />
 
         {/* Car Cards อยู่ด้านขวา */}
-        <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: 20 }}>
+        <div style={{ flex: 3, display: "flex", flexWrap: "wrap", gap: 1 }}>
           {filteredCars
             .filter(car => car.sale_list?.length)
             .map(car => (

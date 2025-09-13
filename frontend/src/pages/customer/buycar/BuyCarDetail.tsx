@@ -3,11 +3,14 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Row, Col, Card, Typography, Image, Button, Divider, Space, Modal, message } from "antd";
 import { ShoppingCartOutlined, PushpinOutlined } from "@ant-design/icons";
 
-import { fetchCarById } from "../../../services/carService";
+import { getCarByID  } from "../../../services/carService";
 import { createSalesContract } from "../../../services/salesContractService";
+// เพิ่มบรรทัดนี้เข้าไป
+import { createBooking } from "../../../services/bookingServices.ts";
 import { getSaleListByCarAndPrice } from "../../../services/saleService"; // ✅ เพิ่มการ import service ใหม่
 import type { CarInfo } from "../../../interface/Car";
 import { useAuth } from "../../../hooks/useAuth";
+import { buyCar } from "../../../services/salesContractService";
 
 const { Title, Paragraph } = Typography;
 
@@ -28,22 +31,23 @@ const BuyCarDetailPage: React.FC = () => {
     window.scrollTo({ top: 0 });
   }, []);
 
-  useEffect(() => {
-    const fetchCar = async () => {
-      try {
-        if (id) {
-          const data = await fetchCarById(id);
-          setCar(data);
-        }
-      } catch (error) {
-        console.error("Fetch car error:", error);
-        message.error("ไม่สามารถโหลดข้อมูลรถได้");
-      } finally {
-        setLoading(false);
+useEffect(() => {
+  const fetchCar = async () => {
+    try {
+      // ✅ เพิ่ม parseInt เพื่อแปลง id เป็น number
+      if (id) {
+        const data = await getCarByID(parseInt(id, 10)); 
+        setCar(data);
       }
-    };
-    fetchCar();
-  }, [id]);
+    } catch (error) {
+      console.error("Fetch car error:", error);
+      message.error("ไม่สามารถโหลดข้อมูลรถได้");
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchCar();
+}, [id]);
 
   useEffect(() => {
     if (user && location.state?.openModal === "buy") {
@@ -66,113 +70,96 @@ const BuyCarDetailPage: React.FC = () => {
     }
   };
 
-  // ✅ แก้ไขฟังก์ชัน handleConfirmBuy เพื่อใช้ service ใหม่
   const handleConfirmBuy = async () => {
-    if (!user || !token || !car || !id) {
-      message.error("ข้อมูลไม่ครบถ้วน ไม่สามารถสร้างสัญญาได้");
-      return;
+  if (!user?.ID || !token || !car || !id) {
+    message.error("ข้อมูลไม่ครบถ้วน หรือไม่พบผู้ใช้งาน ไม่สามารถสร้างสัญญาได้");
+    return;
+  }
+   try {
+        // ✅ เรียกใช้ service buyCar ใหม่
+        // เราส่งแค่ carID และ customerID ไปก็พอ
+        await buyCar(parseInt(id, 10), user.ID, token);
+
+        setBuy(false);
+        setBook(false);
+        message.success("ซื้อรถสำเร็จ! กำลังพาไปหน้าชำระเงิน...");
+        navigate("/payment");
+
+    } catch (error) {
+        console.error("Failed to buy car:", error);
+        message.error("เกิดข้อผิดพลาดในการซื้อรถ");
     }
 
-     try {
-    // ✅ แก้ไขการเรียก service โดยแปลงค่า price เป็น float
+  try {
     const price = parseFloat(car.sale_list?.[0]?.sale_price.toString() || '0');
-    const saleListData = await getSaleListByCarAndPrice(id, price);
+    const saleListData = await getSaleListByCarAndPrice(parseInt(id, 10), price);
 
-    if (!saleListData?.ID || !saleListData?.EmployeeID) {
+    // ✅ แก้ไขตรงนี้
+    if (!saleListData?.ID || !saleListData?.employeeID) { 
       message.error("ไม่พบข้อมูล Sale List ที่ถูกต้อง");
       return;
     }
 
-      // ✅ 2. ใช้ข้อมูลที่ค้นหาได้เพื่อสร้าง SalesContract
-      const contractData = {
-        SaleListID: saleListData.ID,
-        EmployeeID: saleListData.EmployeeID,
-        CustomerID: user.ID,
-      };
+    const contractData = {
+      SaleListID: saleListData.ID,
+      // ✅ และแก้ไขตรงนี้
+      EmployeeID: saleListData.employeeID, 
+      CustomerID: user.ID,
+    };
+    
 
-      await createSalesContract(contractData, token);
-      setBuy(false);
-      setBook(false);
-      message.success("สร้างสัญญาซื้อขายสำเร็จ กำลังพาไปหน้าชำระเงิน...");
-      navigate("/payment");
-    } catch (error) {
-      console.error("Failed to create sales contract:", error);
-      message.error("เกิดข้อผิดพลาดในการสร้างสัญญาซื้อขาย");
+    await createSalesContract(contractData, token);
+    setBuy(false);
+    setBook(false);
+    message.success("สร้างสัญญาซื้อขายสำเร็จ กำลังพาไปหน้าชำระเงิน...");
+    navigate("/payment");
+  } catch (error) {
+    console.error("Failed to create sales contract:", error);
+    message.error("เกิดข้อผิดพลาดในการสร้างสัญญาซื้อขาย");
+  }
+};
+
+// 🗑️ หมายเหตุ: ฟังก์ชัน handleConfirmLike เดิมถูกลบออกไป
+  const handleLikeClick = () => {
+    if (!user) {
+      navigate("/login", { state: { from: location.pathname, openModal: "book" } });
+    } else {
+      setBook(true);
     }
   };
 
-  // const handleConfirmLike = async () => {
-  //   if (!user || !token || !car || !id) {
-  //     message.error("ข้อมูลไม่ครบถ้วน ไม่สามารถสร้างสัญญาได้");
-  //     return;
-  //   }
+  const handleConfirmLike = async () => {
+    // ✅ 1. ตรวจสอบข้อมูลให้ครบถ้วน โดยเฉพาะ sale_list
+    if (!user?.ID || !token || !car?.sale_list?.[0]?.ID) {
+      message.error("ข้อมูลไม่ครบถ้วน ไม่สามารถทำรายการได้");
+      return;
+    }
+    try {
+      // ✅ 2. ดึง ID จาก sale_list[0] ซึ่งก็คือ SaleListID
+      const saleListId = car.sale_list[0].ID;
 
-  //    try {
-  //   // ✅ แก้ไขการเรียก service โดยแปลงค่า price เป็น float
-  //   const price = parseFloat(car.sale_list?.[0]?.sale_price.toString() || '0');
-  //   const saleListData = await getSaleListByCarAndPrice(id, price);
+      // ✅ 3. เรียกใช้ service createBooking โดยส่ง saleListId และ user.ID
+      await createBooking(saleListId, user.ID, token);
+      
+      setBook(false);
+      message.success("บันทึกรถที่ถูกใจสำเร็จ!");
 
-  //   if (!saleListData?.ID) {
-  //     message.error("ไม่พบข้อมูล Sale List ที่ถูกต้อง");
-  //     return;
-  //   }
-  //     // ✅ 2. ใช้ข้อมูลที่ค้นหาได้เพื่อสร้าง SalesContract
-  //     const contractData = {
-  //       SaleListID: saleListData.ID,
-  //       EmployeeID: saleListData.EmployeeID,
-  //       CustomerID: user.ID,
-  //     };
+    } catch (error: any) {
+      console.error("Failed to create booking:", error);
+      // ✅ 4. แสดง error message ที่ได้รับมาจาก service
+      const errorMessage = error.message || "เกิดข้อผิดพลาดในการบันทึก";
+      message.error(errorMessage);
+    }
+  };
 
-  //     await createSalesContract(contractData, token);
-  //     setBuy(false);
-  //     setBook(false);
-  //     message.success("สร้างสัญญาซื้อขายสำเร็จ กำลังพาไปหน้าชำระเงิน...");
-  //     navigate("/payment");
-  //   } catch (error) {
-  //     console.error("Failed to create sales contract:", error);
-  //     message.error("เกิดข้อผิดพลาดในการสร้างสัญญาซื้อขาย");
-  //   }
-  // };
-
-//  const handleConfirmRent = async () => {
-//     if (!car || selectedRentRange.length !== 2 || !user) {
-//       message.error("ข้อมูลไม่ครบถ้วนหรือไม่พบผู้ใช้งาน");
-//       return;
-//     }
-
-//     const startDate = selectedRentRange[0];
-//     const endDate = selectedRentRange[1];
-//     const days = endDate.diff(startDate, "day") + 1;
-//     const totalPrice = days * rentPricePerDay;
-
-//     const payload = {
-//       car_id: car.ID,
-//       customer_id: user.ID,
-//       start_date: startDate.format("YYYY-MM-DD"),
-//       end_date: endDate.format("YYYY-MM-DD"),
-//       total_price: totalPrice,
-//     };
-
-//     try {
-//       setLoading(true);
-//       await customerRentService.createRentContract(payload);
-//       setRentModalVisible(false);
-//       message.success("ทำสัญญาเช่าสำเร็จแล้ว! กำลังนำทาง...");
-//       // อาจจะนำทางไปหน้า profile หรือหน้าแสดงสัญญา
-//       navigate("/payment"); 
-//     } catch (error) {
-//       console.error("Failed to create rent contract:", error);
-//       message.error("เกิดข้อผิดพลาดในการสร้างสัญญาเช่า");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
 
   if (loading) return <div>Loading...</div>;
   if (!car) return <div>ไม่พบรถที่ต้องการ</div>;
 
-  const mainCarImage = car.pictures?.[0]?.path || "";
-  const thumbImages = car.pictures?.slice(1, 5).map(p => p.path) || [];
+
+  const baseUrl = "http://localhost:8080/images/cars/";
+  const mainCar = car.pictures?.[0] ? `${baseUrl}${car.pictures[0].path}` : "";
+  const thumbnails = car.pictures?.slice(1) || [];
 
   return (
     <div className={`page-container ${isAnyModalOpen ? "blurred" : ""}`}
@@ -190,11 +177,11 @@ const BuyCarDetailPage: React.FC = () => {
             onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 215, 0, 0.4)")}
             onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
           >
-            <Image src={mainCarImage} alt="car-main" style={{ borderRadius: "12px", marginBottom: "10px" }} />
+            <Image src={mainCar} alt="car-main" style={{ borderRadius: "12px", marginBottom: "10px" }} />
             <Row gutter={8}>
-              {thumbImages.map((thumb, i) => (
+              {thumbnails.map((thumb, i) => (
                 <Col span={6} key={i}>
-                  <Image src={thumb} alt={`car-${i}`} style={{ borderRadius: "8px" }} />
+                  <Image src={`${baseUrl}${thumb.path}`} alt={`car-${i}`} style={{ borderRadius: "8px" }} />
                 </Col>
               ))}
             </Row>
@@ -229,8 +216,8 @@ const BuyCarDetailPage: React.FC = () => {
 
             <div style={{ color: "#fff", lineHeight: "1.8em" }}>
               <Title level={4} style={{ color: "gold", marginTop: "-10px" }}>ติดต่อพนักงาน</Title>
-              <p>ชื่อ : Lung Tuu</p>
-              <p>เบอร์โทร : 09888866</p>
+              <p>ชื่อ : {car.employee?.name}</p>
+              <p>เบอร์โทร : {car.employee?.phone}</p>
             </div>
 
             <Divider style={{ borderColor: "rgba(255, 215, 0, 0.3)" }} />
@@ -254,7 +241,7 @@ const BuyCarDetailPage: React.FC = () => {
                   e.currentTarget.style.backgroundColor = "gold";
                   e.currentTarget.style.color = "black";
                 }}
-                onClick={handleBuyClick}
+                onClick={handleLikeClick}
               >
                 ถูกใจ
               </Button>
@@ -310,7 +297,7 @@ const BuyCarDetailPage: React.FC = () => {
                   </Button>,
                   <Button
                     key="submit"
-                    onClick={handleConfirmBuy}
+                    onClick={handleConfirmLike}
                     style={{
                       backgroundColor: "gold",
                       color: "black",
@@ -450,9 +437,7 @@ const BuyCarDetailPage: React.FC = () => {
         <Title level={4} style={{ color: "gold" }}>รายละเอียด</Title>
         <Paragraph style={{ color: "#ccc" }}>
           {car.carName} ปี {car.yearManufacture}<br />
-          - เลขไมล์: {car.mileage?.toLocaleString()} กม.<br />
-          - สี: {car.color}<br />
-          - สภาพ: {car.condition}
+          {car.sale_list?.length ? car.sale_list[0].description : "ไม่มีรายละเอียด"}
         </Paragraph>
       </Card>
     </div>

@@ -1,4 +1,5 @@
 import type { SalesContract } from '../interface/Salescontract';
+import axios from 'axios';
 
 const API_URL = 'http://localhost:8080';
 
@@ -34,4 +35,21 @@ export const createSalesContract = async (
   }
 
   return response.json();
+};
+
+// ... (โค้ดส่วนอื่น)
+
+// ✅ อัปเดตฟังก์ชัน buyCar
+export const buyCar = async (carID: number, customerID: number, token: string): Promise<any> => {
+    const payload = {
+        customer_id: customerID,
+    };
+    const response = await axios.post(
+        `http://localhost:8080/bycar/buy/${carID}`, 
+        payload,
+        {
+            headers: { Authorization: `Bearer ${token}` }
+        }
+    );
+    return response.data;
 };

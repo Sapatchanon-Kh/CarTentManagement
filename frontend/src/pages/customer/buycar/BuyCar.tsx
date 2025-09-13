@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Typography } from 'antd';
 import type { CarInfo, CarType, FilterValues, SortOption } from "../../../interface/Car";
-import { fetchCars } from "../../../services/carService";
+import { Typography } from 'antd';
+import { getAllCars } from "../../../services/carService";
 import CarCard from "../../../components/CarCard";
 import Filter from "../../../components/BuyRentFillter";
+
 const BuyCarPage: React.FC = () => {
   const [cars, setCars] = useState<CarInfo[]>([]);
   const [filteredCars, setFilteredCars] = useState<CarInfo[]>([]);
-
   const { Title } = Typography;
 
   useEffect(() => {
     const loadCars = async () => {
-      const data = await fetchCars();
+      const data = await getAllCars();
       setCars(data);
       setFilteredCars(data);
     };
@@ -73,5 +73,4 @@ const BuyCarPage: React.FC = () => {
     </div>
   );
 };
-
 export default BuyCarPage;
