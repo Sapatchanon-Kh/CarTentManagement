@@ -16,10 +16,7 @@ type Customer struct {
 	PickupDelivery         []PickupDelivery        `gorm:"foreignKey:CustomerID" json:"pickup_deliveries"`
 	InspectionAppointments []InspectionAppointment `gorm:"foreignKey:CustomerID" json:"inspection_appointments"`
 	SalesContract          []SalesContract         `gorm:"foreignKey:CustomerID" json:"sales_contracts"`
-<<<<<<< HEAD
-	Booking                []Booking               `gorm:"foreignKey:CustomerID" json:"booking"`
-=======
 
 	Payment []Payment `gorm:"foreignKey:CustomerID" json:"payments"`
->>>>>>> upstream/present
+	Booking                []Booking               `gorm:"foreignKey:CustomerID" json:"booking"`
 }
