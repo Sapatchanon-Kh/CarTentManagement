@@ -75,7 +75,7 @@ const RentCarPage: React.FC = () => {
         {/* Car Cards อยู่ด้านขวา */}
         <div style={{ flex: 3, display: "flex", flexWrap: "wrap", gap: 1 }}>
           {filteredCars
-            .filter(car => car.sale_list?.length)
+            .filter(car => car.rent_list?.length)
             .map(car => (
               <CarCard key={car.ID} car={car} type="rentView" />
             ))}
