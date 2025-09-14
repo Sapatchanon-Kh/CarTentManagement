@@ -5,7 +5,11 @@ import SaleForm from "../../../components/SaleForm";
 const EditSellPage: React.FC = () => {
   const { saleId } = useParams<{ saleId: string }>();
 
-  return <SaleForm saleId={Number(saleId)} mode="edit" />;
+  return (
+    <div >
+  <SaleForm saleId={Number(saleId)} mode="edit" />
+  </div>
+  );
 };
 
 export default EditSellPage;

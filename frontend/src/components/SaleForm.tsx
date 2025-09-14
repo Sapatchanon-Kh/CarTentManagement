@@ -1,15 +1,15 @@
 // src/components/SaleForm.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, Row, Col, Form, Input, InputNumber, Button, Typography, Select, message, Modal } from "antd";
+import { Card, Row, Col, Form, Input, InputNumber, Button, Typography, Select, message } from "antd";
 import { getCarByID } from "../services/carService";
 import { createSale, updateSale, getSaleById } from "../services/saleService";
 import { getEmployees } from "../services/employeeService";
 import type { CarInfo } from "../interface/Car";
+import "antd/dist/reset.css";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-const { confirm } = Modal;
 
 interface SaleFormProps {
     mode: "create" | "edit";
@@ -66,51 +66,38 @@ const SaleForm: React.FC<SaleFormProps> = ({ mode, carId, saleId }) => {
                 .finally(() => setLoading(false));
         }
     }, [carId, saleId, mode, form]);
-const handleSubmit = async (values: any) => {
-    if (!values.sale_price || !values.employee_id) {
-        message.error("กรุณากรอกข้อมูลให้ครบ");
-        return;
-    }
-
-    const payload = {
-        car_id: carId!,
-        sale_price: Number(values.sale_price),
-        manager_id: managerId,
-        employee_id: Number(values.employee_id),
-        description: values.description,
-    };
-
-    setLoading(true);
-    try {
-        if (mode === "create") {
-            await createSale(payload);
-            confirm({
-                title: "สร้างรายการขายเรียบร้อย",
-                content: `คุณได้สร้างรายการขายรถ ${car?.carName} เรียบร้อยแล้ว`,
-                okText: "ตกลง",
-                onOk: () => {
-                    navigate("/sell");
-                },
-                onCancel: () => {
-                    // ไม่ทำอะไร เพิ่มเติมถ้าต้องการ
-                },
-            });
-        } else if (mode === "edit" && saleId) {
-            await updateSale(saleId, payload);
-            confirm({
-                title: "แก้ไขรายการขายเรียบร้อย",
-                content: `คุณได้แก้ไขรายการขายรถ ${car?.carName} เรียบร้อยแล้ว`,
-                okText: "ตกลง",
-                onOk: () => navigate("/sell"),
-            });
+    const handleSubmit = async (values: any) => {
+        if (!values.sale_price || !values.employee_id) {
+            message.error("กรุณากรอกข้อมูลให้ครบ");
+            return;
         }
-    } catch (err) {
-        console.error(err);
-        message.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
-    } finally {
-        setLoading(false);
-    }
-};
+
+        const payload = {
+            car_id: carId!,
+            sale_price: Number(values.sale_price),
+            manager_id: managerId,
+            employee_id: Number(values.employee_id),
+            description: values.description,
+        };
+
+        setLoading(true);
+        try {
+            if (mode === "create") {
+                await createSale(payload);
+                message.success(`สร้างรายการขายรถ ${car?.carName} เรียบร้อยแล้ว`, 2); // 2 วิ
+                navigate("/sell");
+            } else if (mode === "edit" && saleId) {
+                await updateSale(saleId, payload);
+                message.success(`แก้ไขรายการขายรถ ${car?.carName} เรียบร้อยแล้ว`, 2);
+                navigate("/sell");
+            }
+        } catch (err) {
+            console.error(err);
+            message.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const inputStyle = {
         backgroundColor: "#fff", // กล่องขาว
@@ -154,7 +141,7 @@ const handleSubmit = async (values: any) => {
                             </div>
                         </Col>
                         <Col span={12}>
-                            <Card type="inner" title="ข้อมูลรถ" style={{ borderRadius: 8,}}>
+                            <Card type="inner" title="ข้อมูลรถ" style={{ borderRadius: 8, }}>
                                 <Text><b>ชื่อรถ:</b> {car.carName}</Text><br />
                                 <Text><b>ยี่ห้อ:</b> {car.brand?.brandName || "-"}</Text><br />
                                 <Text><b>รุ่น:</b> {car.model?.modelName || "-"}</Text><br />

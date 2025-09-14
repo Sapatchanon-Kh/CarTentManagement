@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"time"
-	"os" // เพิ่ม import นี้
+	"os"            // เพิ่ม import นี้
 	"path/filepath" // เพิ่ม import นี้
+	"time"
 
 	"github.com/PanuAutawo/CarTentManagement/backend/configs"
 	"github.com/PanuAutawo/CarTentManagement/backend/controllers"
@@ -63,13 +63,11 @@ func main() {
 
 	paymentController := controllers.NewPaymentController(configs.DB)
 
-
 	rentContractController := controllers.NewRentContractController(configs.DB)
 	saleController := controllers.NewSaleController(configs.DB)
 	buyCarController := controllers.NewBuyCarController(configs.DB)
-
 	// --- Routes ---
-
+	bookingController := controllers.NewBookingController(configs.DB)
 	// Public Routes
 	r.POST("/register", customerController.RegisterCustomer)
 	r.POST("/login", customerController.LoginCustomer)
@@ -80,10 +78,8 @@ func main() {
 	r.Static("/images/cars", "./public/images/cars")
 
 	// ✅ เสิร์ฟไฟล์ uploads/receipts
-	
-	r.Static("/static", "./static")
 
-	
+	r.Static("/static", "./static")
 
 	// Payment Routes
 	r.GET("/payments", paymentController.ListPayments)
@@ -97,13 +93,12 @@ func main() {
 
 	// To serve the uploaded files
 	currentDir, err := os.Getwd()
-    if err != nil {
-        log.Fatal(err)
-    }
-    uploadsPath := filepath.Join(currentDir, "uploads")
-    r.Static("/uploads", uploadsPath) // ใช้ Path แบบเต็ม
+	if err != nil {
+		log.Fatal(err)
+	}
+	uploadsPath := filepath.Join(currentDir, "uploads")
+	r.Static("/uploads", uploadsPath) // ใช้ Path แบบเต็ม
 
-	
 	// Car Routes
 	r.GET("/cars", carController.GetAllCars)
 	r.GET("/cars/:id", carController.GetCarByID)
@@ -153,6 +148,7 @@ func main() {
 	rentContractRoutes := r.Group("/rent-contracts")
 	{
 		rentContractRoutes.POST("", rentContractController.CreateRentContract)
+		rentContractRoutes.GET("/car/:carID", rentContractController.GetRentDatesByCarID)
 	}
 	// SalesContract Routes
 	salesContractRoutes := r.Group("/sales-contracts")
@@ -180,33 +176,21 @@ func main() {
 
 	// Pickup Delivery Routes
 	pickupDeliveryRoutes := r.Group("/pickup-deliveries")
-	{
 
+	{
+		// 1. ย้ายเส้นทางที่เฉพาะเจาะจงมากกว่าขึ้นมาไว้ด้านบน
 		pickupDeliveryRoutes.GET("", pickupDeliveryController.GetPickupDeliveries)
 		pickupDeliveryRoutes.GET("/employee/:employeeID", pickupDeliveryController.GetPickupDeliveriesByEmployeeID)
 		pickupDeliveryRoutes.GET("/customer/:customerID", pickupDeliveryController.GetPickupDeliveriesByCustomerID)
+
+		// 2. เส้นทางที่ใช้พารามิเตอร์ทั่วไป (/:id) จะอยู่ถัดลงมา
 		pickupDeliveryRoutes.GET("/:id", pickupDeliveryController.GetPickupDeliveryByID)
+
+		// 3. เส้นทางสำหรับการสร้างและแก้ไขข้อมูล
 		pickupDeliveryRoutes.POST("", pickupDeliveryController.CreatePickupDelivery)
 		pickupDeliveryRoutes.PUT("/:id", pickupDeliveryController.UpdatePickupDelivery)
 		pickupDeliveryRoutes.PATCH("/:id/status", pickupDeliveryController.UpdatePickupDeliveryStatus)
 		pickupDeliveryRoutes.DELETE("/:id", pickupDeliveryController.DeletePickupDelivery)
-	}
-
-		{
-			// 1. ย้ายเส้นทางที่เฉพาะเจาะจงมากกว่าขึ้นมาไว้ด้านบน
-			pickupDeliveryRoutes.GET("", pickupDeliveryController.GetPickupDeliveries)
-			pickupDeliveryRoutes.GET("/employee/:employeeID", pickupDeliveryController.GetPickupDeliveriesByEmployeeID)
-			pickupDeliveryRoutes.GET("/customer/:customerID", pickupDeliveryController.GetPickupDeliveriesByCustomerID)
-
-			// 2. เส้นทางที่ใช้พารามิเตอร์ทั่วไป (/:id) จะอยู่ถัดลงมา
-			pickupDeliveryRoutes.GET("/:id", pickupDeliveryController.GetPickupDeliveryByID)
-
-			// 3. เส้นทางสำหรับการสร้างและแก้ไขข้อมูล
-			pickupDeliveryRoutes.POST("", pickupDeliveryController.CreatePickupDelivery)
-			pickupDeliveryRoutes.PUT("/:id", pickupDeliveryController.UpdatePickupDelivery)
-			pickupDeliveryRoutes.PATCH("/:id/status", pickupDeliveryController.UpdatePickupDeliveryStatus)
-			pickupDeliveryRoutes.DELETE("/:id", pickupDeliveryController.DeletePickupDelivery)
-		}
 	}
 
 	//public Employee Routes (สำหรับดูข้อมูลพนักงาน)
@@ -215,7 +199,6 @@ func main() {
 	// 	employeePublicRoutes.GET("", employeeController.GetEmployees)
 	// 	employeePublicRoutes.GET("/:id", employeeController.GetEmployeeByID)
 	// }
-
 
 	// ✅ New API Group
 	api := r.Group("/api")
@@ -249,8 +232,6 @@ func main() {
 		rentListRoutes.GET("/:carId", rentListController.GetRentListsByCar)
 		rentListRoutes.PUT("", rentListController.CreateOrUpdateRentList)
 		rentListRoutes.DELETE("/date/:dateId", rentListController.DeleteRentDate)
-
-=======
 		rentListRoutes.POST("/book/:carId", rentListController.BookCar) // เพิ่ม BookCar
 
 	}
@@ -260,10 +241,20 @@ func main() {
 		saleControllerRoutes.GET("/:id", saleController.GetSaleByID)      // GET /sale/:id
 		saleControllerRoutes.POST("", saleController.CreateSale)          // POST /sale
 		saleControllerRoutes.PUT("/:id", saleController.UpdateSale)       // PUT /sale/:id
+		saleControllerRoutes.GET("/car/:car_id/price/:price", saleController.GetSaleListByCarAndPrice)
 	}
+
+	bookingRoutes := r.Group("/bookings")
+
+	{
+		bookingRoutes.POST("", bookingController.CreateBooking)
+	}
+
 	r.POST("/bycar/buy/:carID", buyCarController.BuyCar)
 	// Start server
+
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("Failed to run server:", err)
 	}
+
 }

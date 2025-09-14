@@ -18,4 +18,5 @@ type Customer struct {
 	SalesContract          []SalesContract         `gorm:"foreignKey:CustomerID" json:"sales_contracts"`
 
 	Payment []Payment `gorm:"foreignKey:CustomerID" json:"payments"`
+	Booking                []Booking               `gorm:"foreignKey:CustomerID" json:"booking"`
 }

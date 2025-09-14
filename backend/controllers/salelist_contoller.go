@@ -73,7 +73,7 @@ func (sc *SaleController) CreateSale(c *gin.Context) {
 	sale := entity.SaleList{
 		CarID:       input.CarID,
 		SalePrice:   input.SalePrice,
-		Status:      "available",
+		Status:      "Available",
 		ManagerID:   &input.ManagerID,
 		EmployeeID:  &input.EmployeeID,
 		Description: input.Description,
@@ -88,7 +88,26 @@ func (sc *SaleController) CreateSale(c *gin.Context) {
 
 	c.JSON(http.StatusOK, sale)
 }
+// GET /sale/car/:car_id/price/:price
+// ดึง SaleList จาก CarID และ SalePrice
+func (sc *SaleController) GetSaleListByCarAndPrice(c *gin.Context) {
+	carID := c.Param("car_id")
+	price := c.Param("price")
 
+	var saleList entity.SaleList
+
+	// ค้นหา SaleList ที่มี CarID และ SalePrice ตรงกับที่รับมา
+	if err := sc.DB.Where("car_id = ? AND sale_price = ?", carID, price).First(&saleList).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "SaleList not found for the given car and price"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, saleList)
+}
 // PUT /sale/:id
 func (sc *SaleController) UpdateSale(c *gin.Context) {
 	id := c.Param("id")
