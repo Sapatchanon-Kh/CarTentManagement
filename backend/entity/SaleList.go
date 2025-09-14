@@ -20,4 +20,5 @@ type SaleList struct {
 	Employee   *Employee `gorm:"foreignKey:EmployeeID;references:EmployeeID" json:"employee"`
 
 	SalesContract []SalesContract `gorm:"foreignKey:SaleListID" json:"sales_contract"`
+	Booking       []Booking       `gorm: "foreignKey:BookingID" json:"booking"`
 }

@@ -59,7 +59,7 @@ const BuyCarPage: React.FC = () => {
       </Title>
       <div style={{ display: "flex", gap: 30, marginTop: 20 }}>
         {/* Filter อยู่ด้านซ้าย */}
-        <Filter cars={cars} onApply={handleApply} onClear={handleClear} />
+        <Filter cars={cars.filter(c => c.sale_list?.length)} onApply={handleApply} onClear={handleClear} />
 
         {/* Car Cards อยู่ด้านขวา */}
         <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: 20 }}>

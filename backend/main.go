@@ -60,6 +60,7 @@ func main() {
 	rentContractController := controllers.NewRentContractController(configs.DB)
 	saleController := controllers.NewSaleController(configs.DB)
 	buyCarController := controllers.NewBuyCarController(configs.DB)
+	bookingController := controllers.NewBookingController(configs.DB)
 	// --- Routes ---
 
 	// Public Routes
@@ -208,7 +209,16 @@ func main() {
 		saleControllerRoutes.GET("/:id", saleController.GetSaleByID)      // GET /sale/:id
 		saleControllerRoutes.POST("", saleController.CreateSale)          // POST /sale
 		saleControllerRoutes.PUT("/:id", saleController.UpdateSale)       // PUT /sale/:id
+		saleControllerRoutes.GET("/car/:car_id/price/:price", saleController.GetSaleListByCarAndPrice)
 	}
+
+	bookingRoutes := r.Group("/bookings")
+	
+	{
+		bookingRoutes.POST("", bookingController.CreateBooking)
+	}
+
+	
 	r.POST("/bycar/buy/:carID", buyCarController.BuyCar)
 	// Start server
 	if err := r.Run(":8080"); err != nil {
