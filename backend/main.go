@@ -119,6 +119,7 @@ func main() {
 	rentContractRoutes := r.Group("/rent-contracts")
 	{
 		rentContractRoutes.POST("", rentContractController.CreateRentContract)
+		  rentContractRoutes.GET("/car/:carID", rentContractController.GetRentDatesByCarID)
 	}
 	// SalesContract Routes
 	salesContractRoutes := r.Group("/sales-contracts")

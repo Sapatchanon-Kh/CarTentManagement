@@ -79,3 +79,29 @@ func (controller *RentContractController) CreateRentContract(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"data": newRentContract})
 }
+
+// GET /rent-contracts/car/:carID
+func (controller *RentContractController) GetRentDatesByCarID(c *gin.Context) {
+    carID := c.Param("carID")
+    var contracts []entity.RentContract
+
+    // join rent_lists เพื่อหา rent_contract ที่ตรงกับ carID
+    if err := controller.DB.
+        Joins("JOIN rent_lists ON rent_lists.id = rent_contracts.rent_list_id").
+        Where("rent_lists.car_id = ?", carID).
+        Find(&contracts).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    // map เอาแค่ช่วงวันที่
+    var dates []gin.H
+    for _, contract := range contracts {
+        dates = append(dates, gin.H{
+            "start_date": contract.DateStart.Format("2006-01-02"),
+            "end_date":   contract.DateEnd.Format("2006-01-02"),
+        })
+    }
+
+    c.JSON(http.StatusOK, gin.H{"dates": dates})
+}

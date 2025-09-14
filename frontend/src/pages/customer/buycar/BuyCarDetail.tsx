@@ -143,7 +143,7 @@ useEffect(() => {
       
       setBook(false);
       message.success("บันทึกรถที่ถูกใจสำเร็จ!");
-
+      navigate("/buycar");
     } catch (error: any) {
       console.error("Failed to create booking:", error);
       // ✅ 4. แสดง error message ที่ได้รับมาจาก service
@@ -152,6 +152,35 @@ useEffect(() => {
     }
   };
 
+//   const handleConfirmLike = async () => {
+//   if (!user?.ID || !token || !car?.sale_list?.[0]?.ID) {
+//     message.error("ข้อมูลไม่ครบถ้วน ไม่สามารถทำรายการได้");
+//     return;
+//   }
+//   try {
+//     const saleListId = car.sale_list[0].ID;
+
+//     await createBooking(saleListId, user.ID, token);
+
+//     setBook(false);
+//     message.success("บันทึกรถที่ถูกใจสำเร็จ!");
+//     navigate("/buycar");
+
+//   } catch (error: any) {
+//     console.error("Failed to create booking:", error);
+
+//     // ✅ ตรวจสอบว่ามีการตอบกลับจาก backend ว่า duplicate หรือไม่
+//     if (error.response?.status === 409 || error.response?.data?.error?.includes("already")) {
+//       // 409 Conflict = ข้อมูลซ้ำ
+//       message.warning("คุณเคยกดถูกใจรถคันนี้ไปแล้ว");
+//       setBook(false);
+//       navigate("/buycar");
+//     } else {
+//       const errorMessage = error.response?.data?.error || "เกิดข้อผิดพลาดในการบันทึก";
+//       message.error(errorMessage);
+//     }
+//   }
+// };
 
   if (loading) return <div>Loading...</div>;
   if (!car) return <div>ไม่พบรถที่ต้องการ</div>;
