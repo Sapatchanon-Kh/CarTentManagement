@@ -37,7 +37,7 @@ func main() {
 	// 3. Create router
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5174"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -60,7 +60,13 @@ func main() {
 	salesContractController := controllers.NewSalesContractController(configs.DB)
 	leaveController := controllers.NewLeaveController(configs.DB)
 	rentListController := controllers.NewRentListController(configs.DB)
+
 	paymentController := controllers.NewPaymentController(configs.DB)
+
+
+	rentContractController := controllers.NewRentContractController(configs.DB)
+	saleController := controllers.NewSaleController(configs.DB)
+	buyCarController := controllers.NewBuyCarController(configs.DB)
 
 	// --- Routes ---
 
@@ -143,6 +149,11 @@ func main() {
 		employeeProtectedRoutes.PUT("/me", employeeController.UpdateCurrentEmployee)
 	}
 
+	// RentContract Routes
+	rentContractRoutes := r.Group("/rent-contracts")
+	{
+		rentContractRoutes.POST("", rentContractController.CreateRentContract)
+	}
 	// SalesContract Routes
 	salesContractRoutes := r.Group("/sales-contracts")
 	{
@@ -170,6 +181,7 @@ func main() {
 	// Pickup Delivery Routes
 	pickupDeliveryRoutes := r.Group("/pickup-deliveries")
 	{
+
 		pickupDeliveryRoutes.GET("", pickupDeliveryController.GetPickupDeliveries)
 		pickupDeliveryRoutes.GET("/employee/:employeeID", pickupDeliveryController.GetPickupDeliveriesByEmployeeID)
 		pickupDeliveryRoutes.GET("/customer/:customerID", pickupDeliveryController.GetPickupDeliveriesByCustomerID)
@@ -180,9 +192,35 @@ func main() {
 		pickupDeliveryRoutes.DELETE("/:id", pickupDeliveryController.DeletePickupDelivery)
 	}
 
+		{
+			// 1. ย้ายเส้นทางที่เฉพาะเจาะจงมากกว่าขึ้นมาไว้ด้านบน
+			pickupDeliveryRoutes.GET("", pickupDeliveryController.GetPickupDeliveries)
+			pickupDeliveryRoutes.GET("/employee/:employeeID", pickupDeliveryController.GetPickupDeliveriesByEmployeeID)
+			pickupDeliveryRoutes.GET("/customer/:customerID", pickupDeliveryController.GetPickupDeliveriesByCustomerID)
+
+			// 2. เส้นทางที่ใช้พารามิเตอร์ทั่วไป (/:id) จะอยู่ถัดลงมา
+			pickupDeliveryRoutes.GET("/:id", pickupDeliveryController.GetPickupDeliveryByID)
+
+			// 3. เส้นทางสำหรับการสร้างและแก้ไขข้อมูล
+			pickupDeliveryRoutes.POST("", pickupDeliveryController.CreatePickupDelivery)
+			pickupDeliveryRoutes.PUT("/:id", pickupDeliveryController.UpdatePickupDelivery)
+			pickupDeliveryRoutes.PATCH("/:id/status", pickupDeliveryController.UpdatePickupDeliveryStatus)
+			pickupDeliveryRoutes.DELETE("/:id", pickupDeliveryController.DeletePickupDelivery)
+		}
+	}
+
+	//public Employee Routes (สำหรับดูข้อมูลพนักงาน)
+	// employeePublicRoutes := r.Group("/employees")
+	// {
+	// 	employeePublicRoutes.GET("", employeeController.GetEmployees)
+	// 	employeePublicRoutes.GET("/:id", employeeController.GetEmployeeByID)
+	// }
+
+
 	// ✅ New API Group
 	api := r.Group("/api")
 	{
+
 		// Leave Routes
 		api.GET("/leaves", leaveController.ListLeaves)
 		api.GET("/employees/:id/leaves", leaveController.ListLeavesByEmployee)
@@ -211,8 +249,19 @@ func main() {
 		rentListRoutes.GET("/:carId", rentListController.GetRentListsByCar)
 		rentListRoutes.PUT("", rentListController.CreateOrUpdateRentList)
 		rentListRoutes.DELETE("/date/:dateId", rentListController.DeleteRentDate)
-	}
 
+=======
+		rentListRoutes.POST("/book/:carId", rentListController.BookCar) // เพิ่ม BookCar
+
+	}
+	saleControllerRoutes := r.Group("/sale")
+	{
+		saleControllerRoutes.GET("/cars", saleController.GetCarsWithSale) // GET /sale/cars
+		saleControllerRoutes.GET("/:id", saleController.GetSaleByID)      // GET /sale/:id
+		saleControllerRoutes.POST("", saleController.CreateSale)          // POST /sale
+		saleControllerRoutes.PUT("/:id", saleController.UpdateSale)       // PUT /sale/:id
+	}
+	r.POST("/bycar/buy/:carID", buyCarController.BuyCar)
 	// Start server
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("Failed to run server:", err)

@@ -10,7 +10,7 @@ type SalesContract struct {
 	SaleListID uint
 	SaleList   *SaleList `gorm:"foreignKey:SaleListID"`
 
-	EmployeeID uint
+	EmployeeID uint		// `json:"employee_id"`
 	Employee   *Employee `gorm:"foreignKey:EmployeeID"`
 
 	CustomerID uint

@@ -1,4 +1,4 @@
-import type { SaleContract } from "./Salecontract";
+import type { SaleContract } from "./Salescontract";
 
 export interface Insurance {
   id: string;

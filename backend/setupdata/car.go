@@ -63,8 +63,8 @@ func InsertCarsFromCSV(db *gorm.DB, filepath string) {
 		provinceID := 0
 		fmt.Sscanf(row[8], "%d", &provinceID)
 
-		employeeID := 0
-		fmt.Sscanf(row[9], "%d", &employeeID)
+		managerID := 0
+		fmt.Sscanf(row[9], "%d", &managerID)
 
 		mileage := 0
 		fmt.Sscanf(row[10], "%d", &mileage)
@@ -79,7 +79,7 @@ func InsertCarsFromCSV(db *gorm.DB, filepath string) {
 			Color:           row[7],
 			ProvinceID:      uint(provinceID),
 			DetailID:        detail.ID,
-			EmployeeID:      uint(employeeID),
+			ManagerID:       uint(managerID),
 			Mileage:         mileage,
 			Condition:       condition,
 		}
