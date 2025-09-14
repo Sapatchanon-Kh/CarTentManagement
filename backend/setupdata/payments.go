@@ -7,55 +7,50 @@ import (
 	"gorm.io/gorm"
 )
 
-// CreatePayments สร้างข้อมูล Payment ตัวอย่าง
 func CreatePayments(db *gorm.DB) {
-	// ตรวจสอบว่ามีข้อมูลอยู่แล้วหรือไม่ เพื่อไม่ให้สร้างซ้ำ
-	var count int64
-	db.Model(&entity.Payment{}).Count(&count)
-	if count > 0 {
-		return
-	}
+	// ตัวช่วยสร้าง pointer
+	uintPtr := func(i uint) *uint { return &i }
 
-	salesContract1 := uint(1)
-	salesContract2 := uint(2)
-	salesContract3 := uint(3)
-	// สร้างข้อมูล Payment ตัวอย่าง
 	payments := []entity.Payment{
 		{
-			Amount:          "150000.00",
-			PaymentDate:     time.Now().Add(-24 * time.Hour),
-			Status:          "ชำระแล้ว",
-			CustomerID:      1,
-			EmployeeID:      1,
-			SalesContractID: salesContract1,
-			PaymentMethodID: 1, // กำหนด ID ของ PaymentMethod
+			Amount:         "150000.00",
+			PaymentDate:    time.Now().AddDate(0, 0, -2),
+			Status:         "ชำระแล้ว",
+			CustomerID:     1,
+			EmployeeID:     1,
+			SalesContractID: uintPtr(1),
+			PaymentMethodID: 1, // โอนผ่านธนาคาร
 		},
 		{
-			Amount:          "250000.00",
-			PaymentDate:     time.Now().Add(-48 * time.Hour),
-			Status:          "รอดำเนินการ",
-			CustomerID:      1,
-			EmployeeID:      2,
-			SalesContractID: salesContract2,
-			PaymentMethodID: 2,
+			Amount:         "250000.00",
+			PaymentDate:    time.Now().AddDate(0, 0, -1),
+			Status:         "รอดำเนินการ",
+			CustomerID:     1,
+			EmployeeID:     2,
+			SalesContractID: uintPtr(2),
+			PaymentMethodID: 2, // พร้อมเพย์
 		},
 		{
-			Amount:          "5000.00",
-			PaymentDate:     time.Now().Add(-72 * time.Hour),
-			Status:          "ชำระแล้ว",
-			CustomerID:      1,
-			EmployeeID:      1,
-			SalesContractID:  salesContract3, // ตัวอย่างสำหรับสัญญาเช่า
-			PaymentMethodID: 1,
+			Amount:         "5000.00",
+			PaymentDate:    time.Now(),
+			Status:         "ถูกปฏิเสธ",
+			CustomerID:     1,
+			EmployeeID:     1,
+			RentContractID: uintPtr(3),
+			PaymentMethodID: 1, // โอนผ่านธนาคาร
+		},
+		{
+			Amount:         "10000.00",
+			PaymentDate:    time.Now().AddDate(0, 0, -3),
+			Status:         "ถูกปฏิเสธ",
+			CustomerID:     2,
+			EmployeeID:     2,
+			RentContractID: uintPtr(1),
+			PaymentMethodID: 2, // พร้อมเพย์
 		},
 	}
 
-	for _, payment := range payments {
-		db.Create(&payment)
+	for _, p := range payments {
+		db.Create(&p)
 	}
-}
-
-// ฟังก์ชันช่วยเหลือเพื่อสร้าง pointer ของ uint
-func uintPtr(n uint) *uint {
-	return &n
 }

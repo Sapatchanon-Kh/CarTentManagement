@@ -23,4 +23,5 @@ type Employee struct {
 	
 	SaleList       []SaleList       `gorm:"foreignKey:EmployeeID"`
 	SalesContract  []SalesContract  `gorm:"foreignKey:EmployeeID"`
+	Payment 	 []Payment       `gorm:"foreignKey:EmployeeID"`
 }

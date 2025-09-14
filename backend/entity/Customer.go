@@ -16,4 +16,6 @@ type Customer struct {
 	PickupDelivery         []PickupDelivery        `gorm:"foreignKey:CustomerID" json:"pickup_deliveries"`
 	InspectionAppointments []InspectionAppointment `gorm:"foreignKey:CustomerID" json:"inspection_appointments"`
 	SalesContract          []SalesContract         `gorm:"foreignKey:CustomerID" json:"sales_contracts"`
+
+	Payment []Payment `gorm:"foreignKey:CustomerID" json:"payments"`
 }

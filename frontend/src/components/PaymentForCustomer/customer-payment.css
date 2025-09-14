@@ -1,0 +1,185 @@
+/* --- Layout --- */
+.customer-payment-page {
+  background: var(--black, #121212);
+  color: var(--gold, #d4af37);
+  min-height: 100vh;
+  padding: 30px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.page-title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* --- Tabs --- */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 12px;
+  background: var(--gray, #1e1e1e);
+  border: 1px solid var(--gold, #d4af37);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--gold, #d4af37);
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+.tabs button:hover {
+  background: var(--gold-dark, #b38e2f);
+  color: #fff;
+}
+
+.tabs .active {
+  background: linear-gradient(90deg, #d4af37, #b38e2f);
+  color: #121212;
+}
+
+/* --- Cards --- */
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.payment-card {
+  background: var(--gray, #1e1e1e);
+  border: 1px solid var(--gold, #d4af37);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease;
+}
+
+.payment-card:hover {
+  transform: translateY(-4px);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+/* --- Status Badges --- */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.status-badge.รอชำระ { background: #b22222; color: #fff; }
+.status-badge.รอตรวจสอบ { background: #ff8c00; color: #fff; }
+.status-badge.ชำระแล้ว { background: #228b22; color: #fff; }
+.status-badge.ถูกปฏิเสธ { background: #8b0000; color: #fff; }
+
+.amount {
+  font-size: 1.4em;
+  margin: 10px 0;
+}
+
+/* --- Buttons --- */
+.btn-primary {
+  padding: 10px 15px;
+  background: linear-gradient(90deg, #d4af37, #b38e2f);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #121212;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(90deg, #ffd700, #d4af37);
+}
+
+.btn-secondary {
+  padding: 10px 15px;
+  background: transparent;
+  border: 1px solid var(--gold, #d4af37);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--gold, #d4af37);
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.btn-secondary:hover {
+  background: var(--gold, #d4af37);
+  color: #121212;
+}
+
+/* --- Modal --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--gray, #1e1e1e);
+  border: 1px solid var(--gold, #d4af37);
+  border-radius: 12px;
+  padding: 20px;
+  width: 420px;
+  max-width: 95%;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.8);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal h3 {
+  margin-bottom: 15px;
+  color: var(--gold, #d4af37);
+  text-align: center;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.payment-info {
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid var(--gold, #d4af37);
+  padding: 12px;
+  border-radius: 8px;
+  margin: 10px 0 15px 0;
+}
+
+.payment-info p {
+  margin: 5px 0;
+  color: #eee;
+}
+
+.qr-code {
+  margin-top: 10px;
+  display: block;
+  width: 150px;
+  height: 150px;
+  border: 1px solid var(--gold, #d4af37);
+  border-radius: 8px;
+}
+
+/* --- Animations --- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}

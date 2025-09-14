@@ -13,20 +13,24 @@ type Payment struct {
 	PaymentDate time.Time `json:"payment_date"`
 	Status      string    `json:"status"`
 
-	CustomerID uint
-	Customer   *Customer `gorm:"foreignKey:CustomerID" json:"customer"`
+	// หลักฐานการชำระ (ลูกค้าอัปโหลด)
+	ProofURL    string `json:"proof_url"`
+	ProofMethod string `json:"proof_method"` // "ธนาคาร" | "พร้อมเพย์"
 
-	EmployeeID uint
-	Employee   *Employee `gorm:"foreignKey:EmployeeID" json:"employee"`
+	CustomerID uint      `json:"customer_id"`
+	Customer   *Customer `gorm:"foreignKey:CustomerID"`
 
-	RentContractID uint
-	RentContract   *RentContract `gorm:"foreignKey:RentContractID" json:"rent_contract"`
+	EmployeeID uint      `json:"employee_id"`
+	Employee   *Employee `gorm:"foreignKey:EmployeeID"`
 
-	SalesContractID uint
-	SalesContract   *SalesContract `gorm:"foreignKey:SalesContractID" json:"sales_contract"`
+	SalesContractID *uint          `json:"sales_contract_id"`
+	SalesContract   *SalesContract `gorm:"foreignKey:SalesContractID"`
 
-	PaymentMethodID uint
-	PaymentMethod   *PaymentMethod `gorm:"foreignKey:PaymentMethodID" json:"payment_method"`
+	RentContractID *uint        `json:"rent_contract_id"`
+	RentContract   *RentContract `gorm:"foreignKey:RentContractID"`
 
-	Receipt []*Receipt `gorm:"foreignKey:PaymentID" json:"receipts"`
+	PaymentMethodID uint           `json:"payment_method_id"`
+	PaymentMethod   *PaymentMethod `gorm:"foreignKey:PaymentMethodID"`
+
+	Receipt Receipt `gorm:"foreignKey:PaymentID"`
 }
