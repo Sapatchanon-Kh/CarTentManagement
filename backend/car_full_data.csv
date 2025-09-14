@@ -1,4 +1,4 @@
-brand_name,model_name,submodel_name,car_name,year_manufacture,purchase_price,purchase_date,color,province_id,employee_id,mileage,condition,car_main,car_side,car_in,car_front,car_bottom
+brand_name,model_name,submodel_name,car_name,year_manufacture,purchase_price,purchase_date,color,province_id,employee_id,mileage,condition,car_mian,car_side,car_in,car_front,car_bottom
 Toyota,Camry,Camry 2.0 G,Toyota Camry 2.0 G,2012,333333,2020-03-15,White,1,1,45200,ดี,car2_main.jpg,car2_side.jpg,car2_in.jpg,car2_front.jpg,car2_bottom.jpg
 Toyota,Corolla,Corolla LE,Toyota Corolla LE,2021,770000,2021-05-10,Black,2,2,38500,ปานกลาง,car3_main.jpg,car3_side.jpg,car3_in.jpg,car3_front.jpg,car3_bottom.jpg
 Toyota,Corolla,Corolla G,Toyota Corolla G,2019,730000,2019-07-20,Silver,3,3,61800,แย่,car4_main.jpg,car4_side.jpg,car4_in.jpg,car4_front.jpg,car4_bottom.jpg
@@ -10,10 +10,10 @@ Toyota,RAV4,RAV4 XLE,Toyota RAV4 XLE,2020,1150000,2020-08-22,Black,2,2,64000,ป
 Toyota,RAV4,RAV4 Limited,Toyota RAV4 Limited,2021,1250000,2021-09-30,White,3,3,54000,แย่,car10_main.jpg,car10_side.jpg,car10_in.jpg,car10_front.jpg,car10_bottom.jpg
 Honda,Civic,Civic RS,Honda Civic RS,2020,900000,2020-04-15,Red,1,1,33000,ดี,car11_main.jpg,car11_side.jpg,car11_in.jpg,car11_front.jpg,car11_bottom.jpg
 Honda,Civic,Civic EX,Honda Civic EX,2021,920000,2021-05-25,Black,2,2,47000,ปานกลาง,car12_main.jpg,car12_side.jpg,car12_in.jpg,car12_front.jpg,car12_bottom.jpg
-Honda,Civic,Civic LX,Honda Civic LX,2019,880000,2019-06-18,Blue,3,3,99000,แย่,car1_main.jpg,car1_side.jpg,car1_in.jpg,car1_front.jpg,car1_bottom.jpg
-Honda,Accord,Accord LX,Honda Accord LX,2020,1300000,2020-07-10,White,1,1,58000,ดี,car13_main.jpg,car13_side.jpg,car13_in.jpg,car13_front.jpg,car13_bottom.jpg
-Honda,Accord,Accord Sport,Honda Accord Sport,2021,1350000,2021-08-12,Gray,2,2,43000,ปานกลาง,car14_main.jpg,car14_side.jpg,car14_in.jpg,car14_front.jpg,car14_bottom.jpg
-Honda,Accord,Accord EX-L,Honda Accord EX-L,2022,1400000,2022-03-05,Black,3,3,31000,แย่,car15_main.jpg,car15_side.jpg,car15_in.jpg,car15_front.jpg,car15_bottom.jpg
+Honda,Civic,Civic LX,Honda Civic LX,2019,880000,2019-06-18,Blue,3,3,99000,แย่,car13_main.jpg,car13_side.jpg,car13_in.jpg,car13_front.jpg,car13_bottom.jpg
+Honda,Accord,Accord LX,Honda Accord LX,2020,1300000,2020-07-10,White,1,1,58000,ดี,car14_main.jpg,car14_side.jpg,car14_in.jpg,car14_front.jpg,car14_bottom.jpg
+Honda,Accord,Accord Sport,Honda Accord Sport,2021,1350000,2021-08-12,Gray,2,2,43000,ปานกลาง,car15_main.jpg,car15_side.jpg,car15_in.jpg,car15_front.jpg,car15_bottom.jpg
+Honda,Accord,Accord EX-L,Honda Accord EX-L,2022,1400000,2022-03-05,Black,3,3,31000,แย่,car1_main.jpg,car1_side.jpg,car1_in.jpg,car1_front.jpg,car1_bottom.jpg
 Honda,CR-V,CR-V LX,Honda CR-V LX,2019,1000000,2019-09-14,Blue,1,1,76000,ดี,car1_main.jpg,car1_side.jpg,car1_in.jpg,car1_front.jpg,car1_bottom.jpg
 Honda,CR-V,CR-V EX,Honda CR-V EX,2020,1050000,2020-10-20,White,2,2,69000,ปานกลาง,car1_main.jpg,car1_side.jpg,car1_in.jpg,car1_front.jpg,car1_bottom.jpg
 Honda,CR-V,CR-V Touring,Honda CR-V Touring,2021,1150000,2021-11-18,Black,3,3,39000,แย่,car1_main.jpg,car1_side.jpg,car1_in.jpg,car1_front.jpg,car1_bottom.jpg

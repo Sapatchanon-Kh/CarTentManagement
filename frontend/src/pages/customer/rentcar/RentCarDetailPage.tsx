@@ -23,6 +23,7 @@ import type { CarInfo } from "../../../interface/Car";
 import { getCarByID } from "../../../services/carService";
 // ✅ 1. Import service สำหรับการสร้างสัญญาเช่าของลูกค้า
 import customerRentService from "../../../services/customerRentService";
+import { getRentDatesByCarID } from "../../../services/rentContractService";
 
 const { Title } = Typography;
 
@@ -38,6 +39,25 @@ const RentCarDetailPage: React.FC = () => {
 
   const [rentModalVisible, setRentModalVisible] = useState(false);
   const [selectedRentRange, setSelectedRentRange] = useState<dayjs.Dayjs[]>([]);
+
+  // วันที่
+  const [rentDates, setRentDates] = useState<{ start_date: string, end_date: string }[]>([]);
+  
+  useEffect(() => {
+    if (!id) return;
+    getRentDatesByCarID(Number(id))
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setRentDates(data);
+        } else {
+          setRentDates([]);
+        }
+      })
+      .catch(() => {
+        setRentDates([]); // fallback
+        message.error("โหลดข้อมูลวันที่เช่าไม่สำเร็จ");
+      });
+  }, [id]);
 
   useEffect(() => {
     const fetchCar = async () => {
@@ -178,12 +198,12 @@ const RentCarDetailPage: React.FC = () => {
               <p>สี: {car.color}</p>
             </div>
 
-            <Divider style={{ borderColor: "rgba(255, 215, 0, 0.3)" }} />
+            {/* <Divider style={{ borderColor: "rgba(255, 215, 0, 0.3)" }} />
             <div style={{ color: "#fff", lineHeight: "1.8em" }}>
               <Title level={4} style={{ color: "gold", marginTop: "-10px" }}>ติดต่อพนักงาน</Title>
               <p>ชื่อ: {car.employee?.name} </p>
               <p>เบอร์โทร: {car.employee?.phone}</p>
-            </div>
+            </div> */}
 
             <Divider style={{ borderColor: "rgba(255, 215, 0, 0.3)" }} />
             <Form
@@ -196,7 +216,7 @@ const RentCarDetailPage: React.FC = () => {
                 label={<span style={{ color: "white", fontWeight: "bold" }}>เลือกช่วงเช่า</span>}
                 rules={[{ required: true, message: "โปรดเลือกช่วงเวลาที่ต้องการเช่า" }]}
               >
-                <CusRentDateRange />
+                <CusRentDateRange disabledRanges={rentDates} />
               </Form.Item>
               <Button
                 icon={<PushpinOutlined />}
@@ -308,6 +328,28 @@ const RentCarDetailPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
+
+      <Card
+        style={{
+          marginTop: "20px",
+          backgroundColor: "#1a1a1a",
+          color: "white",
+          borderRadius: 12,
+          border: "2px solid gold"
+        }}
+      >
+        <Title level={4} style={{ color: "gold" }}>ช่วงวันที่รถถูกเช่าแล้ว</Title>
+        {rentDates.length > 0 ? (
+          rentDates.map((d, i) => (
+            <p key={i}>
+              {d.start_date} - {d.end_date}
+            </p>
+          ))
+        ) : (
+          <p>ยังไม่มีการเช่ารถคันนี้</p>
+        )}
+      </Card>
+
     </div>
   );
 };

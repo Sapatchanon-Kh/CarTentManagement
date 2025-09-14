@@ -65,7 +65,7 @@ const Filter: React.FC<FilterProps> = ({ cars, onApply, onClear }) => {
     <div
       style={{
         width: 250, // กำหนดความกว้าง 300 พิกเซล
-        maxHeight: "47vh", // กำหนดความสูงสูงสุดไม่เกิน 80% ของหน้าจอ
+        maxHeight: "55vh", // กำหนดความสูงสูงสุดไม่เกิน 80% ของหน้าจอ
 
         boxSizing: "border-box",
         padding: "5px 30px",

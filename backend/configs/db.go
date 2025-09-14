@@ -45,6 +45,7 @@ func ConnectDatabase(dbName string) {
 		&entity.SubDistrict{},
 		&entity.Payment{},
 		&entity.LeaveRequest{}, // ✅ เพิ่ม
+		&entity.Booking{},
 
 	)
 	if err != nil {
