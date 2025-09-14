@@ -6,7 +6,7 @@ const API_URL = "http://localhost:8080/sale";
 
 export interface SaleListInfo {
     ID: number;
-    EmployeeID: number;
+    employeeID: number;
 }
 
 export const getSaleListByCarAndPrice = async (carId: string, price: number): Promise<SaleListInfo | null> => {

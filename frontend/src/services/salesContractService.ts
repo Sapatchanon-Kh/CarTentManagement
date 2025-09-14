@@ -37,11 +37,19 @@ export const createSalesContract = async (
   return response.json();
 };
 
-export const buyCar = async (carId: number, customerId: number, token: string) => {
-  const res = await axios.post(
-    `http://localhost:8080/bycar/buy/${carId}`,
-    { customerId },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  return res.data;
+// ... (โค้ดส่วนอื่น)
+
+// ✅ อัปเดตฟังก์ชัน buyCar
+export const buyCar = async (carID: number, customerID: number, token: string): Promise<any> => {
+    const payload = {
+        customer_id: customerID,
+    };
+    const response = await axios.post(
+        `http://localhost:8080/bycar/buy/${carID}`, 
+        payload,
+        {
+            headers: { Authorization: `Bearer ${token}` }
+        }
+    );
+    return response.data;
 };

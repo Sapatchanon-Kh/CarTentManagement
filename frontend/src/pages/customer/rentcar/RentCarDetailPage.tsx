@@ -125,7 +125,7 @@ const RentCarDetailPage: React.FC = () => {
 
   const baseUrl = "http://localhost:8080/images/cars/";
   const mainCar = car.pictures?.[0] ? `${baseUrl}${car.pictures[0].path}` : "";
-  const thumbnails = car.pictures?.slice() || [];
+  const thumbnails = car.pictures?.slice(1) || [];
 
   return (
     <div className={`page-container ${rentModalVisible ? "blurred" : ""}`}
