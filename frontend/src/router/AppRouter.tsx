@@ -28,7 +28,7 @@ import AllCarPage from '../pages/manager/stock/AllCarPage';
 import AddnewCarPage from '../pages/manager/stock/AddnewCarPage';
 import EditCarTentPage from '../pages/manager/stock/EditCarTentPage';
 import AddRentPage from '../pages/manager/rent/AddRentPage';
-import EditRentPage from '../pages/manager/rent/EditRentPage';
+import EditRentPage from '../pages/manager/rent/AddRentPage';
 import CreateRentCarPage from '../pages/manager/rent/CreateRentCarPage';
 import RentListPage from '../pages/manager/rent/RentListPage';
 import AddSellPage from '../pages/manager/sell/AddSellPage';
@@ -50,6 +50,7 @@ import AppointmentAll from '../pages/employee/pickup-delivery/AppointmentAll';
 import InspectionPage from '../pages/employee/inspection/InspectionPage';
 import SummaryPage from '../pages/employee/salecontact/SummaryPage'
 import EmpProfilePage from '../pages/employee/profile/EmployeeDashboard'
+import PaymentDetail from '../pages/employee/PaymentDetail';
 
 interface ProtectedRouteProps {
     allowedRoles: string[];
@@ -102,10 +103,11 @@ const AppRouter: React.FC = () => {
                 </Route>
             </Route>
 
-            {/* --- Employee Routes --- */}
+            {/* --- Employee Routes --- PaymentDetail*/}
             <Route element={<ProtectedRoute allowedRoles={['employee']} />}>
                 <Route element={<EmployeeLayout />}>
                     <Route path="/homepage-employee" element={<HomePageEm />} />
+                    <Route path="/payment-detail/:id" element={<PaymentDetail />} />
                     <Route path="/appointment-details/:id" element={<AppointmentDetailsPage />} />
                     <Route path="/AppointmentAll" element={<AppointmentAll />} />
                     <Route path="/Inspection" element={<InspectionPage />} />

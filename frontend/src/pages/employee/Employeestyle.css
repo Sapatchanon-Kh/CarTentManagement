@@ -1,368 +1,3 @@
-:root {
-  --gold: #d4af37;
-  --gold-dark: #b38e2f;
-  --black: #121212;
-  --white: #ffffff;
-  --gray: #1e1e1e;
-  --font-main: 'Poppins', sans-serif;
-
-  /* ✅ ความสูง Topbar ของเพื่อน */
-  --topbar-height: 60px;
-}
-
-body {
-  margin: 0;
-  font-family: var(--font-main);
-  background-color: var(--black);
-  color: var(--white);
-}
-
-.dashboard-container {
-  display: flex;
-  min-height: 100vh;
-  margin-top: var(--topbar-height); /* ✅ เลื่อนลงไม่ชน bar */
-}
-
-.main-content {
-  flex: 1;
-  padding: 2rem;
-}
-
-/* Header */
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  border-bottom: 1px solid var(--gold);
-  padding-bottom: 1rem;
-}
-.dashboard-header h1 {
-  font-size: 1.8rem;
-  color: var(--gold);
-}
-.dashboard-header button {
-  background-color: var(--gold);
-  color: var(--black);
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-.dashboard-header button:hover {
-  background-color: var(--gold-dark);
-}
-
-/* ✅ ปุ่มแท็บด้านบน (แทน Sidebar) */
-.tab-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.tab-buttons button {
-  background-color: var(--gray);
-  border: 1px solid var(--gold);
-  color: var(--white);
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.tab-buttons button.active {
-  background-color: var(--gold);
-  color: var(--black);
-  font-weight: bold;
-}
-
-.tab-buttons button:hover {
-  background-color: var(--gold-dark);
-  color: var(--black);
-}
-
-/* Card sections */
-.card {
-  background-color: var(--gray);
-  border: 1px solid var(--gold);
-  border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
-}
-.card h2 {
-  color: var(--gold);
-  margin-bottom: 1.5rem;
-}
-
-/* ใช้ .no-border เมื่อไม่อยากให้ card มีเส้นขอบ */
-.card.no-border {
-  border: none;
-  box-shadow: none;
-  background-color: transparent;
-}
-.card.no-border .edit-btn-container {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 1rem;
-}
-.card.no-border .edit-btn-container button {
-  background-color: var(--gold);
-  color: var(--black);
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-.card.no-border .edit-btn-container button:hover {
-  background-color: var(--gold-dark);
-}
-
-/* Grid layout */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-}
-
-/* Form fields */
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-.form-group label {
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
-  color: var(--white);
-}
-.form-group input,
-.form-group select {
-  background-color: var(--black);
-  color: var(--white);
-  border: 1px solid var(--gold);
-  padding: 0.6rem;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: box-shadow 0.2s ease;
-}
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  box-shadow: 0 0 5px var(--gold);
-}
-.form-group input:disabled,
-.form-group select:disabled {
-  background-color: #1a1a1a;
-  color: #aaa;
-  cursor: not-allowed;
-}
-
-/* Action buttons */
-.actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-start;
-}
-.action-btn {
-  padding: 0.75rem 1.25rem;
-  border: none;
-  border-radius: 6px;
-  background-color: var(--gold);
-  color: var(--black);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-.action-btn:hover {
-  background-color: var(--gold-dark);
-}
-
-/* Leave history table */
-.leave-history input {
-  font-weight: 500;
-  color: var(--white);
-}
-.leave-history small {
-  color: #ccc;
-  font-size: 0.85rem;
-  margin-top: 0.3rem;
-  display: block;
-}
-.leave-history table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-.leave-history th,
-.leave-history td {
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--gold);
-  text-align: left;
-}
-.leave-history th {
-  background-color: var(--gold-dark);
-  color: var(--black);
-}
-.leave-history td {
-  background-color: var(--gray);
-  color: var(--white);
-}
-
-/* Status colors */
-.status-denied {
-  color: red;
-  font-weight: bold;
-}
-.status-approved {
-  color: green;
-  font-weight: bold;
-}
-.status-pending {
-  color: orange;
-  font-weight: bold;
-}
-
-/* Personal info */
-.personal-info-container {
-  display: flex;
-  gap: 2rem;
-  align-items: flex-start;
-  flex-wrap: wrap;
-}
-.profile-image-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 140px;
-}
-.profile-image-container .form-group {
-  width: 100%;
-}
-.profile-image,
-.profile-placeholder {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 0.3rem;
-  cursor: pointer;
-}
-.profile-placeholder {
-  background-color: #444;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ccc;
-}
-.profile-id {
-  text-align: center;
-  font-size: 0.9rem;
-  color: #ccc;
-  font-weight: 500;
-}
-.personal-fields {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-}
-
-/* Error message */
-.error {
-  color: red;
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
-  display: block;
-}
-
-/* Success message */
-.success {
-  color: green;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-/* Notification */
-.notification {
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  font-weight: 500;
-  animation: fadeIn 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-.notification.success {
-  background-color: green;
-  color: white;
-}
-
-.notification.error {
-  background-color: red;
-  color: white;
-}
-
-.notification.fade-out {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ================= Modal ================= */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(18, 18, 18, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background-color: var(--gray);
-  border: 2px solid var(--gold);
-  border-radius: 12px;
-  padding: 2rem;
-  width: 400px;
-  max-width: 90%;
-  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
-  animation: fadeIn 0.3s ease;
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.modal-buttons button {
-  background-color: var(--gold);
-  color: var(--black);
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.modal-buttons button:hover {
-  background-color: var(--gold-dark);
-}
-
 /* --- Style Variables --- */
 :root {
   --gold: #d4af37;
@@ -373,43 +8,120 @@ body {
 }
 
 /* =============================================================
-  ✅ FIX: สไตล์สำหรับส่วนหัวของปฏิทิน (Calendar Header)
+  1. FIX: ทำให้ไอคอน DatePicker และ Search มองเห็นชัดขึ้น
   =============================================================
 */
 
-/* --- 1. Dropdown เลือกปีและเดือน --- */
-.ant-picker-calendar-header .ant-select-selection-item {
+/* ไอคอนปฏิทินใน DatePicker */
+.ant-picker-suffix .anticon {
+  color: var(--gold) !important;
+}
+.ant-input-search .ant-input-search-button .anticon-search {
   color: var(--gold) !important;
 }
 
-/* --- 2. ปุ่มสลับ "เดือน" / "ปี" --- */
+/* ไอคอนแว่นขยายในช่อง Search */
+.ant-input-search-icon .anticon {
+  color: var(--gold) !important;
+}
 
-/* ปุ่มปกติ (ยังไม่ถูกเลือก) */
-.ant-picker-calendar-header .ant-radio-button-wrapper {
+
+/* =============================================================
+  2. FIX: สไตล์สำหรับ Dropdown "อัปเดตสถานะ" (ธีมสีเข้ม)
+  =============================================================
+*/
+
+/* กล่อง Select ที่แสดงสถานะปัจจุบัน */
+.status-select-custom .ant-select-selector {
+  background-color: var(--black) !important;
+  border: 1px solid var(--gold) !important;
+  color: var(--white) !important;
+}
+
+.status-select-custom .ant-select-arrow {
+  color: var(--gold) !important;
+}
+
+/* พื้นหลังของ Dropdown ทั้งหมด */
+.status-select-dropdown {
   background-color: var(--gray) !important;
-  border-color: var(--gold) !important;
-  color: var(--gold) !important;
+  border: 1px solid var(--gold) !important;
 }
 
-/* ปุ่มเมื่อเอาเมาส์ไปชี้ */
-.ant-picker-calendar-header .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked):hover {
+/* ตัวเลือก (Option) แต่ละอันในสถานะปกติ */
+.status-select-dropdown .ant-select-item {
+  color: var(--white) !important;
+}
+
+/* ตัวเลือก (Option) เมื่อผู้ใช้เอาเมาส์ไปชี้ (Hover) */
+.status-select-dropdown .ant-select-item-option:hover {
   background-color: var(--gold-dark) !important;
   color: var(--black) !important;
 }
 
-/* ปุ่มที่ถูกเลือกอยู่ (Active) */
-.ant-picker-calendar-header .ant-radio-button-wrapper-checked {
+/* ตัวเลือก (Option) ที่ถูกเลือกอยู่ */
+.status-select-dropdown .ant-select-item-option-selected {
   background-color: var(--gold) !important;
   color: var(--black) !important;
-  border-color: var(--gold) !important;
+}
+/* --- Style Variables --- */
+:root {
+  --gold: #d4af37;
+  --gold-dark: #b38e2f;
+  --black: #121212;
+  --white: #ffffff;
+  --gray: #1e1e1e;
 }
 
-
-
 /* =============================================================
-  ✅ FIX: ทำให้เส้นเชื่อม Timeline เป็นสีทอง
+  1. FIX: ทำให้ไอคอน DatePicker และ Search มองเห็นชัดขึ้น
   =============================================================
 */
-.ant-timeline-item-tail {
-  border-color: var(--gold) !important;
+
+/* ไอคอนปฏิทินใน DatePicker และไอคอนแว่นขยายในช่อง Search */
+.ant-picker-suffix .anticon,
+.ant-input-search-icon .anticon {
+  color: var(--gold) !important;
+}
+
+/* =============================================================
+  2. FIX: สไตล์สำหรับ Dropdown "อัปเดตสถานะ" (ธีมสีเข้ม)
+  =============================================================
+*/
+
+/* กล่อง Select ที่แสดงสถานะปัจจุบัน (ในตาราง) */
+.status-select-custom .ant-select-selector {
+  background-color: var(--gray) !important; /* เปลี่ยนพื้นหลังให้เด่นขึ้น */
+  border: 1px solid var(--gold) !important;
+  color: var(--white) !important;
+  box-shadow: 0 0 5px rgba(212, 175, 55, 0.3); /* เพิ่มเงาเล็กน้อย */
+}
+
+.status-select-custom .ant-select-arrow {
+  color: var(--gold) !important;
+}
+
+/* พื้นหลังของ Dropdown ทั้งหมด */
+.status-select-dropdown {
+  background-color: var(--gray) !important;
+  border: 1px solid var(--gold) !important;
+}
+
+/* ตัวเลือก (Option) แต่ละอันในสถานะปกติ */
+.status-select-dropdown .ant-select-item {
+  color: var(--white) !important;
+  background-color: transparent !important;
+}
+
+/* ตัวเลือก (Option) เมื่อเอาเมาส์ไปชี้ */
+.status-select-dropdown .ant-select-item-option-hover {
+  background-color: var(--gold-dark) !important;
+  color: var(--black) !important;
+}
+
+/* ตัวเลือก (Option) ที่ถูกเลือกอยู่ */
+.status-select-dropdown .ant-select-item-option-selected {
+  background-color: var(--gold) !important;
+  color: var(--black) !important;
+  font-weight: bold;
 }

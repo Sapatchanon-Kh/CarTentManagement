@@ -3,11 +3,12 @@ package main
 import (
 	"log"
 	"time"
+	"os" // เพิ่ม import นี้
+	"path/filepath" // เพิ่ม import นี้
 
 	"github.com/PanuAutawo/CarTentManagement/backend/configs"
 	"github.com/PanuAutawo/CarTentManagement/backend/controllers"
 	"github.com/PanuAutawo/CarTentManagement/backend/middleware"
-	"github.com/PanuAutawo/CarTentManagement/backend/services" // ✅ เพิ่ม import
 	"github.com/PanuAutawo/CarTentManagement/backend/setupdata"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -59,18 +60,7 @@ func main() {
 	salesContractController := controllers.NewSalesContractController(configs.DB)
 	leaveController := controllers.NewLeaveController(configs.DB)
 	rentListController := controllers.NewRentListController(configs.DB)
-
-	// ✅ เพิ่ม Payment/Receipt Services + Controllers
-	paymentService := services.NewPaymentService(configs.DB)
-	receiptService := services.NewReceiptService(configs.DB)
-
-	paymentController := &controllers.PaymentController{
-		Service:        paymentService,
-		ReceiptService: receiptService,
-	}
-	receiptController := &controllers.ReceiptController{
-		Service: receiptService,
-	}
+	paymentController := controllers.NewPaymentController(configs.DB)
 
 	// --- Routes ---
 
@@ -84,9 +74,30 @@ func main() {
 	r.Static("/images/cars", "./public/images/cars")
 
 	// ✅ เสิร์ฟไฟล์ uploads/receipts
-	r.Static("/uploads", "./uploads")
+	
 	r.Static("/static", "./static")
 
+	
+
+	// Payment Routes
+	r.GET("/payments", paymentController.ListPayments)
+	r.GET("/payments/:id", paymentController.GetPayment)
+	r.POST("/payments", paymentController.CreatePayment)
+	r.PATCH("/payments/:id/status", paymentController.UpdatePaymentStatus)
+	r.DELETE("/payments/:id", paymentController.DeletePayment)
+	r.GET("/payments/customer/:customerID", paymentController.ListPaymentsByCustomer) // เพิ่ม route สำหรับดึงข้อมูลของลูกค้า
+	// **Add this new route for file upload**
+	r.POST("/payments/:id/upload-proof", paymentController.UploadPaymentProof)
+
+	// To serve the uploaded files
+	currentDir, err := os.Getwd()
+    if err != nil {
+        log.Fatal(err)
+    }
+    uploadsPath := filepath.Join(currentDir, "uploads")
+    r.Static("/uploads", uploadsPath) // ใช้ Path แบบเต็ม
+
+	
 	// Car Routes
 	r.GET("/cars", carController.GetAllCars)
 	r.GET("/cars/:id", carController.GetCarByID)
@@ -185,13 +196,6 @@ func main() {
 		api.PUT("/employees/:id", employeeController.UpdateEmployeeByID)
 		api.DELETE("/employees/:id", employeeController.DeleteEmployeeByID)
 
-		// 🔹 Payment Routes
-		api.GET("/payments", paymentController.List)
-		api.POST("/payments/:id/proof", paymentController.UploadProof)
-		api.PATCH("/payments/:id", paymentController.PatchStatus)
-
-		// 🔹 Receipt Routes
-		api.GET("/receipts/:paymentId", receiptController.ByPayment)
 	}
 
 	// Admin-Only Routes

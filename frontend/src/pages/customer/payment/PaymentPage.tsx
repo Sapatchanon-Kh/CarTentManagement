@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import PaymentList from "../../../components/PaymentForCustomer/PaymentList";
 import "../../../components/PaymentForCustomer/customer-payment.css";
+import { Typography } from 'antd';
+
+const { Title } = Typography;
 
 const CustomerPaymentPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("ซื้อ");
 
   return (
     <div className="customer-payment-page">
-      <h1 className="page-title">💳 การชำระเงิน</h1>
+      <Title level={2} className="page-title" style={{ color: '#d4af37' }}>💳 การชำระเงิน</Title>
       <div className="tabs">
-        {["ซื้อ", "เช่า", "ประกัน"].map((tab) => (
+        {["ซื้อ", "เช่า"].map((tab) => (
           <button
             key={tab}
             className={activeTab === tab ? "active" : ""}

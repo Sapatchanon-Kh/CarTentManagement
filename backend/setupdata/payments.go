@@ -24,7 +24,7 @@ func CreatePayments(db *gorm.DB) {
 		{
 			Amount:         "250000.00",
 			PaymentDate:    time.Now().AddDate(0, 0, -1),
-			Status:         "รอชำระ",
+			Status:         "รอดำเนินการ",
 			CustomerID:     1,
 			EmployeeID:     2,
 			SalesContractID: uintPtr(2),
@@ -33,10 +33,10 @@ func CreatePayments(db *gorm.DB) {
 		{
 			Amount:         "5000.00",
 			PaymentDate:    time.Now(),
-			Status:         "รอตรวจสอบ",
+			Status:         "ถูกปฏิเสธ",
 			CustomerID:     1,
 			EmployeeID:     1,
-			SalesContractID: uintPtr(3),
+			RentContractID: uintPtr(3),
 			PaymentMethodID: 1, // โอนผ่านธนาคาร
 		},
 		{

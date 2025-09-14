@@ -7,8 +7,8 @@ interface Payment {
   amount: string;
   payment_date: string;
   status: string;
-  customer?: { name: string };
-  employee?: { name: string };
+  customer?: { first_name: string; last_name: string }; // แก้ไขตรงนี้
+  employee?: { firstName: string; lastName: string }; // แก้ไขตรงนี้
 }
 
 interface Props {
@@ -45,8 +45,9 @@ const EmployeePaymentDetail: React.FC<Props> = ({ payment, onClose, onUpdated })
         <p>จำนวนเงิน: {payment.amount} บาท</p>
         <p>วันที่: {new Date(payment.payment_date).toLocaleDateString()}</p>
         <p>สถานะ: {payment.status}</p>
-        <p>ลูกค้า: {payment.customer?.name || "ไม่ทราบ"}</p>
-        <p>พนักงาน: {payment.employee?.name || "ไม่ทราบ"}</p>
+        <p>ลูกค้า: {payment.customer?.first_name || "ไม่ทราบ"} {payment.customer?.last_name || ""}</p>
+        <p>พนักงาน: {payment.employee?.firstName || "ไม่ทราบ"} {payment.employee?.lastName || ""}</p>
+
 
         <div className="modal-actions">
           <button

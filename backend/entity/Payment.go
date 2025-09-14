@@ -14,7 +14,7 @@ type Payment struct {
 	Status      string    `json:"status"`
 
 	// หลักฐานการชำระ (ลูกค้าอัปโหลด)
-	ProofURL    string `json:"proof_url"`    // เช่น "/uploads/xxxx.jpg"
+	ProofURL    string `json:"proof_url"`
 	ProofMethod string `json:"proof_method"` // "ธนาคาร" | "พร้อมเพย์"
 
 	CustomerID uint      `json:"customer_id"`

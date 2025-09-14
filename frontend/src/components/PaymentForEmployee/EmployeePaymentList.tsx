@@ -8,8 +8,8 @@ interface Payment {
   amount: string;
   payment_date: string;
   status: string;
-  customer?: { name: string };
-  employee?: { name: string };
+  customer?: { first_name: string; last_name: string }; // แก้ไขตรงนี้
+  employee?: { firstName: string; lastName: string }; // แก้ไขตรงนี้
 }
 
 const EmployeePaymentList: React.FC = () => {
@@ -52,7 +52,7 @@ const EmployeePaymentList: React.FC = () => {
       <div className="card-container">
         {filteredPayments.map((payment) => (
           <div
-            key={payment.id}
+            key={payment.id} // ✨ This is the fix
             className="payment-card"
             onClick={() => setSelectedPayment(payment)}
           >
@@ -63,12 +63,11 @@ const EmployeePaymentList: React.FC = () => {
               </span>
             </div>
             <p className="amount">{payment.amount} บาท</p>
-            <p>ลูกค้า: {payment.customer?.name || "ไม่ทราบ"}</p>
-            <p>พนักงาน: {payment.employee?.name || "ไม่ทราบ"}</p>
+            <p>ลูกค้า: {payment.customer?.first_name || "ไม่ทราบ"} {payment.customer?.last_name || ""}</p>
+            <p>พนักงาน: {payment.employee?.firstName || "ไม่ทราบ"} {payment.employee?.lastName || ""}</p>
           </div>
         ))}
       </div>
-
       {selectedPayment && (
         <EmployeePaymentDetail
           payment={selectedPayment}
